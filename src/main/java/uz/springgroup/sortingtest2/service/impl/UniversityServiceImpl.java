@@ -70,6 +70,11 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public ResponseDto<UniversityDto> getById(Integer id) {
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.universityValid(id, errors);
+        if (!errors.isEmpty()) {
+            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+        }
         Optional<University> universityOptional = universityRepository.findById(id);
         if (universityOptional.isEmpty()) {
             return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
@@ -80,7 +85,11 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public ResponseDto<UniversityDto> update(UniversityDto universityDto) {
-        if (universityDto.getId() == null) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.EMPTY_FIELD, universityDto);
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.universityValid(universityDto.getId(), errors);
+        if (!errors.isEmpty()) {
+            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+        }
         if (!universityRepository.existsById(universityDto.getId())){
             return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, universityDto);
         }
