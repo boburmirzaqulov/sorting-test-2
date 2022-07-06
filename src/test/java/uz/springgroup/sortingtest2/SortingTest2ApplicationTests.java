@@ -1,0 +1,13 @@
+package uz.springgroup.sortingtest2;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class SortingTest2ApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}
