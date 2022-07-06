@@ -30,7 +30,7 @@ public class UniversityResource {
     }
 
     @PutMapping
-    public ResponseDto<UniversityDto> update(@RequestBody @Valid UniversityDto universityDto){
+    public ResponseDto<?> update(@RequestBody @Valid UniversityDto universityDto){
         return universityService.update(universityDto);
     }
 

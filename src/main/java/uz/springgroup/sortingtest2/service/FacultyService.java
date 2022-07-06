@@ -1,18 +1,18 @@
 package uz.springgroup.sortingtest2.service;
 
 import org.springframework.util.MultiValueMap;
+import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.UniversityDto;
 
-public interface UniversityService {
-
-    ResponseDto<UniversityDto> save(UniversityDto universityDto);
+public interface FacultyService {
+    ResponseDto<FacultyDto> save(FacultyDto facultyDto);
 
     ResponseDto<?> getAll(MultiValueMap<String, String> params);
 
-    ResponseDto<UniversityDto> getById(Integer id);
+    ResponseDto<FacultyDto> getById(Integer id);
 
-    ResponseDto<?> update(UniversityDto universityDto);
+    ResponseDto<?> update(FacultyDto facultyDto);
 
     ResponseDto<Integer> delete(Integer id);
 }
