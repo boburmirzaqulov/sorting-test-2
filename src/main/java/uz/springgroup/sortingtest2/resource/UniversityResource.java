@@ -35,7 +35,7 @@ public class UniversityResource {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseDto<Integer> delete(@PathVariable @Valid Integer id){
+    public ResponseDto<Integer> delete(@PathVariable Integer id){
         return universityService.delete(id);
     }
 }

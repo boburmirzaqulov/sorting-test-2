@@ -17,6 +17,7 @@ import uz.springgroup.sortingtest2.helper.StringHelper;
 import uz.springgroup.sortingtest2.mapper.UniversityMapper;
 import uz.springgroup.sortingtest2.repository.UniversityRepository;
 import uz.springgroup.sortingtest2.service.UniversityService;
+import uz.springgroup.sortingtest2.service.ValidationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +91,11 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public ResponseDto<Integer> delete(Integer id) {
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.universityValid(id, errors);
+        if (!errors.isEmpty()) {
+            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+        }
         if (!universityRepository.existsById(id)){
             new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
         }
