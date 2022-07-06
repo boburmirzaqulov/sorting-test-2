@@ -26,7 +26,7 @@ public class Group {
     private Date year;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "faculty_id")
     private Faculty faculty;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "group")
