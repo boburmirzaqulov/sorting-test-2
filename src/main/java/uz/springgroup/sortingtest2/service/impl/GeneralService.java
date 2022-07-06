@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
-import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.helper.StringHelper;

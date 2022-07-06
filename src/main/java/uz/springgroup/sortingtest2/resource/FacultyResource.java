@@ -5,7 +5,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
-import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.service.impl.FacultyServiceImpl;
 
 import javax.validation.Valid;
