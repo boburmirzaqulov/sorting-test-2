@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "group")
+@Table(name = "groups")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -25,11 +25,11 @@ public class Group {
 
     private Date year;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "faculty_id")
     private Faculty faculty;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "group")
+    @OneToMany(mappedBy = "group")
     private List<Student> students;
 
     @OneToOne(mappedBy = "group")

@@ -22,10 +22,10 @@ public class Faculty {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "university_id")
     private University university;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "faculty")
+    @OneToMany(mappedBy = "faculty")
     private List<Group> groups;
 }

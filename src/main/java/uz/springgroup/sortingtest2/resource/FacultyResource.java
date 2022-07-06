@@ -10,6 +10,7 @@ import uz.springgroup.sortingtest2.service.impl.FacultyServiceImpl;
 import javax.validation.Valid;
 
 @RestController
+@RequestMapping("/faculty")
 @RequiredArgsConstructor
 public class FacultyResource {
     private final FacultyServiceImpl facultyService;

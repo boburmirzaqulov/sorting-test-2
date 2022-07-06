@@ -10,6 +10,7 @@ import uz.springgroup.sortingtest2.service.impl.UniversityServiceImpl;
 import javax.validation.Valid;
 
 @RestController
+@RequestMapping("/university")
 @RequiredArgsConstructor
 public class UniversityResource {
     private final UniversityServiceImpl universityService;

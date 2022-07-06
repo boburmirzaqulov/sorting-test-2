@@ -28,7 +28,7 @@ public class University {
     @Column(name = "open_year")
     private Date openYear;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "university")
+    @OneToMany(mappedBy = "university")
     private List<Faculty> faculties;
 
 }

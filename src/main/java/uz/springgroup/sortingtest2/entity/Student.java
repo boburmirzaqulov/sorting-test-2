@@ -22,7 +22,7 @@ public class Student {
 
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
 
