@@ -37,13 +37,17 @@ public class ValidationService {
             List<FacultyDto> facultyDtos = new ArrayList<>();
             for (int i = 0; i < universityDto.getFaculties().size(); i++) {
                 FacultyDto facultyDto = universityDto.getFaculties().get(i);
-                if (facultyDto.getId() != null) facultyDtos.add(facultyDto);
+                if (facultyDto.getId() != null) {
+                    facultyDtos.add(facultyDto);
+                }
 
                 UniversityDto universityDto1 = facultyDto.getUniversity();
-                if (universityDto1 != null && universityDto1.getId() != null) {
-                    errors.add(new ValidatorDto(
-                            "Faculty with University ID = " + facultyDto.getUniversity().getId(),
-                            AppMessages.INCORRECT_TYPE));
+                if (universityDto1 != null) {
+                    if (universityDto1.getId() != null) {
+                        errors.add(new ValidatorDto(
+                                "Faculty with University ID = " + facultyDto.getUniversity().getId(),
+                                AppMessages.INCORRECT_TYPE));
+                    }
                 }
             }
 

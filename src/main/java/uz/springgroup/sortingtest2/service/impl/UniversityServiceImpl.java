@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
+import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
@@ -37,8 +38,6 @@ public class UniversityServiceImpl implements UniversityService {
     private final FacultyRepository facultyRepository;
     private final FacultyMapper facultyMapper;
     private final FacultyServiceImpl facultyService;
-
-
 
     @Override
     public ResponseDto<UniversityDto> save(UniversityDto universityDto) {
