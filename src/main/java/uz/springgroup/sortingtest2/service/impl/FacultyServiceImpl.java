@@ -59,6 +59,7 @@ public class FacultyServiceImpl implements FacultyService {
         if (university != null) {
             if (university.getId() == null) {
                 try {
+                    university.setActive(true);
                     universityRepository.save(university);
                     faculty.setUniversity(university);
                 } catch (Exception e) {
@@ -67,6 +68,7 @@ public class FacultyServiceImpl implements FacultyService {
                 }
             }
         }
+        faculty.setActive(true);
         facultyRepository.save(faculty);
         List<Group> groups = faculty.getGroups();
         for (Group group : groups) {
@@ -94,7 +96,7 @@ public class FacultyServiceImpl implements FacultyService {
             int size = StringHelper.getNumber(params.getFirst("size"));
             try {
                 PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
-                Page<Faculty> facultyPage = facultyRepository.findAll(pageRequest);
+                Page<Faculty> facultyPage = facultyRepository.findAllByIsActiveTrue(pageRequest);
 
                 List<FacultyDto> facultyDtos = facultyPage.get()
                         .map(facultyMapper::toDto)
@@ -144,6 +146,7 @@ public class FacultyServiceImpl implements FacultyService {
         }
 
         Faculty faculty = facultyMapper.toEntity(facultyDto);
+        faculty.setActive(true);
         facultyRepository.save(faculty);
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, facultyMapper.toDto(faculty));
 
@@ -187,6 +190,7 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public List<Faculty> updateWithUniversity(University university, List<Faculty> faculties) {
         for (Faculty faculty : faculties) {
+            faculty.setActive(true);
             faculty.setUniversity(university);
         }
         try {

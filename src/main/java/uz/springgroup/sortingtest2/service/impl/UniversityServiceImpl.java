@@ -80,8 +80,10 @@ public class UniversityServiceImpl implements UniversityService {
         if (!errors.isEmpty())
             return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, universityDto, errors);
 
+        // S A V E    U N I V E R S I T Y
         universityDto.setId(null);
         University university = universityMapper.toEntity(universityDto);
+        university.setActive(true);
         try {
             universityRepository.save(university);
         } catch (Exception e) {
@@ -190,6 +192,7 @@ public class UniversityServiceImpl implements UniversityService {
 
         University university = universityMapper.toEntity(universityDto);
         try {
+            university.setActive(true);
             universityRepository.save(university);
         } catch (Exception e) {
             e.printStackTrace();
