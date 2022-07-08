@@ -16,7 +16,7 @@ public class FacultyDto {
     private Integer id;
     @NotBlank(message = AppMessages.EMPTY_FIELD)
     private String name;
-    @NotNull(message = AppMessages.EMPTY_FIELD)
+//    @NotNull(message = AppMessages.EMPTY_FIELD)
     private UniversityDto university;
     private List<GroupDto> groups;
 }

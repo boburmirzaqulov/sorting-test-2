@@ -11,6 +11,8 @@ import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Faculty;
+import uz.springgroup.sortingtest2.entity.GroupSt;
+import uz.springgroup.sortingtest2.entity.University;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.helper.StringHelper;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class FacultyServiceImpl implements FacultyService {
     private final FacultyRepository facultyRepository;
     private final FacultyMapper facultyMapper;
+
     @Override
     public ResponseDto<FacultyDto> save(FacultyDto facultyDto) {
         facultyDto.setId(null);
@@ -39,9 +42,11 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public ResponseDto<?> getAll(MultiValueMap<String, String> params) {
+        // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
         boolean isPage = false, isSize=false;
-        GeneralService.getAllGeneral(params, isPage, isSize, errors);
+        ValidationService.getAllGeneral(params, isPage, isSize, errors);
+
         if(isPage && isSize){
             int page = StringHelper.getNumber(params.getFirst("page"));
             int size = StringHelper.getNumber(params.getFirst("size"));
@@ -80,17 +85,45 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public ResponseDto<?> update(FacultyDto facultyDto) {
+        // W I T H   V A L I D A T I O N
         ResponseDto<?> responseDto = GeneralService.updateGeneral(facultyRepository, facultyDto.getId());
+
         if (responseDto == null) {
             Faculty faculty = facultyMapper.toEntity(facultyDto);
             facultyRepository.save(faculty);
             return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, facultyMapper.toDto(faculty));
         }
+
         return responseDto;
     }
 
     @Override
     public ResponseDto<Integer> delete(Integer id) {
+        // W I T H   V A L I D A T I O N
         return GeneralService.deleteGeneral(facultyRepository, id);
+    }
+
+    @Override
+    public List<Faculty> saveAll(University university, List<FacultyDto> facultyDtos) {
+        List<Faculty> faculties = facultyMapper.toEntity(facultyDtos);
+        return updateWithUniversity(university, faculties);
+    }
+
+    @Override
+    public List<Faculty> updateWithUniversity(University university, List<Faculty> faculties) {
+        for (int i = 0; i < faculties.size(); i++) {
+            faculties.get(i).setUniversity(university);
+        }
+        facultyRepository.saveAll(faculties);
+        for (int i = 0; i < faculties.size(); i++) {
+            faculties.get(i).setUniversity(null);
+        }
+        return faculties;
+    }
+
+    @Override
+    public ResponseDto<List<?>> getAllGroupsById(Integer id) {
+        List<GroupSt> groupSts = facultyRepository.groupSt(id);
+        return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, groupSts);
     }
 }

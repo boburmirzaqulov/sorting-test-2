@@ -38,4 +38,9 @@ public class Subject {
 
     @OneToMany(mappedBy = "subject")
     private List<Mark> markList;
+
+    public Subject(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
