@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
+import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.entity.Group;
@@ -66,20 +67,28 @@ public class FacultyServiceImpl implements FacultyService {
                     e.printStackTrace();
                     throw new DatabaseException(e.getMessage(), e);
                 }
+            } else {
+                Optional<University> universityOptional = universityRepository.findByIdAndIsActiveTrue(university.getId());
+                if (universityOptional.isPresent()) {
+                    University university1 = universityOptional.get();
+                    university1.setFaculties(null);
+                    faculty.setUniversity(university1);
+                }
             }
         }
         faculty.setActive(true);
         facultyRepository.save(faculty);
         List<Group> groups = faculty.getGroups();
-        for (Group group : groups) {
-            group.setFaculty(faculty);
+        if (groups != null) {
+            for (Group group : groups) {
+                group.setFaculty(faculty);
+            }
+            groupRepository.saveAll(groups);
+            for (Group group : groups) {
+                group.setFaculty(null);
+            }
+            faculty.setGroups(groups);
         }
-        groupRepository.saveAll(groups);
-        for (Group group : groups) {
-            group.setFaculty(null);
-        }
-        faculty.setGroups(groups);
-
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, facultyMapper.toDto(faculty));
     }
 
@@ -207,6 +216,9 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public ResponseDto<List<?>> getAllGroupsById(Integer id) {
+        if (!facultyRepository.existsByIdAndIsActiveTrue(id)) {
+            return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        }
         List<GroupSt> groupSts = facultyRepository.groupSt(id);
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, groupSts);
     }
@@ -229,6 +241,30 @@ public class FacultyServiceImpl implements FacultyService {
                 e.printStackTrace();
                 throw new DatabaseException(e.getMessage(), e);
             }
+        }
+    }
+
+    @Override
+    public ResponseDto<FacultyDto> recoveryById(Integer id) {
+        try {
+            Optional<Faculty> facultyOptional = facultyRepository.findByIdAndIsActiveFalse(id);
+            if (facultyOptional.isPresent()) {
+                Faculty faculty = facultyOptional.get();
+                faculty.setActive(true);
+                groupService.setActiveOne(true, id);
+                try {
+                    facultyRepository.save(faculty);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new DatabaseException(e.getMessage(), e);
+                }
+                return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, facultyMapper.toDto(faculty));
+            } else {
+                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(),e);
         }
     }
 }

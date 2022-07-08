@@ -65,7 +65,7 @@ public class ValidationService {
             if (universityDto.getId() != null){
                 boolean uR;
                 try {
-                    uR = universityRepository.existsById(facultyDto.getUniversity().getId());
+                    uR = universityRepository.existsByIdAndIsActiveTrue(facultyDto.getUniversity().getId());
                 } catch (Exception e){
                     e.printStackTrace();
                     throw new DatabaseException(e.getMessage(), e);
@@ -84,7 +84,7 @@ public class ValidationService {
                         .collect(Collectors.toList());
                 List<Integer> groupIdsDB;
                 try {
-                    groupIdsDB = groupRepository.findAllByIdIn(groupIds).stream()
+                    groupIdsDB = groupRepository.findAllByIdInAndIsActiveTrue(groupIds).stream()
                             .map(Group::getId)
                             .distinct()
                             .collect(Collectors.toList());

@@ -3,6 +3,7 @@ package uz.springgroup.sortingtest2.service;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
+import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.entity.University;
 
@@ -24,4 +25,6 @@ public interface FacultyService {
     ResponseDto<List<?>> getAllGroupsById(Integer id);
 
     void setActiveAll(boolean b, List<Integer> universityIds);
+
+    ResponseDto<FacultyDto> recoveryById(Integer id);
 }

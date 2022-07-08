@@ -20,7 +20,7 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
 
     List<Group> findAllByFacultyId(Integer facultyId);
 
-    List<Group> findAllByIdIn(List<Integer> groupsIds);
+    List<Group> findAllByIdInAndIsActiveTrue(List<Integer> groupsIds);
 
     Page<Group> findAllByIsActiveTrue(Pageable pageable);
 

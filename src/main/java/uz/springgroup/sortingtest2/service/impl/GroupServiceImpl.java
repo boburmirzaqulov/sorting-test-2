@@ -81,6 +81,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseDto<List<GroupSt>> getStudents(Integer id) {
+        if (!groupRepository.existsByIdAndIsActiveTrue(id)){
+            return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        }
         List<GroupSt> groupSts = groupRepository.getInfoStudents(id);
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, groupSts);
     }

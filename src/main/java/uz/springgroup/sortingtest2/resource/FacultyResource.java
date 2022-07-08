@@ -5,6 +5,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
+import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.service.impl.FacultyServiceImpl;
 
 import javax.validation.Valid;
@@ -19,6 +20,11 @@ public class FacultyResource {
     @GetMapping("/{id}/groups")
     public ResponseDto<List<?>> getAllGroups(@PathVariable Integer id){
         return facultyService.getAllGroupsById(id);
+    }
+
+    @PostMapping("/{id}/recovery")
+    public ResponseDto<FacultyDto> recoveryById(@PathVariable Integer id){
+        return facultyService.recoveryById(id);
     }
 
     @PostMapping

@@ -51,7 +51,7 @@ public class UniversityServiceImpl implements UniversityService {
         List<Integer> facultyIds = new ArrayList<>();
         List<Faculty> facultiesDtos = new ArrayList<>();
         List<Faculty> facultiesDtosWithId = new ArrayList<>();
-        if (!facultyDtos.isEmpty()) {
+        if (facultyDtos != null && !facultyDtos.isEmpty()) {
 
             for (FacultyDto facultyDto : facultyDtos) {
                 Faculty faculty = facultyMapper.toEntity(facultyDto);

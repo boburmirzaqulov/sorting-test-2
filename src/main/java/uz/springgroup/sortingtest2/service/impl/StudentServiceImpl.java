@@ -34,6 +34,10 @@ public class StudentServiceImpl implements StudentService {
         if (!errors.isEmpty())
             return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null);
 
+        if (!studentRepository.existsByIdAndIsActiveTrue(id)) {
+            return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        }
+
         List<SubjectSt> subjects = studentRepository.subjectSt(id);
 
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, subjects);
