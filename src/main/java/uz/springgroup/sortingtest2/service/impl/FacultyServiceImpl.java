@@ -166,7 +166,9 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public List<Faculty> saveAll(University university, List<FacultyDto> facultyDtos) {
-        List<Faculty> faculties = facultyMapper.toEntity(facultyDtos);
+        List<Faculty> faculties = facultyDtos.stream()
+                .map(facultyMapper::toEntity)
+                .collect(Collectors.toList());
         return updateWithUniversity(university, faculties);
     }
 

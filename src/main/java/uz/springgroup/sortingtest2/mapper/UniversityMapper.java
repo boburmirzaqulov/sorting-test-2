@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 public interface UniversityMapper {
     UniversityMapper INSTANCE = Mappers.getMapper(UniversityMapper.class);
 
-    @Mapping(target = "faculties", source = "universityDto.faculties", qualifiedByName = "toFaculties")
+    @Mapping(target = "faculties", source = "universityDto.faculties", qualifiedByName = "toFacultiesToEntity")
     University toEntity(UniversityDto universityDto);
 
-    @Named("toFaculties")
-    default List<Faculty> toFaculties(List<FacultyDto> facultyDtos){
+    @Named("toFacultiesToEntity")
+    default List<Faculty> toFacultiesToEntity(List<FacultyDto> facultyDtos){
         if (facultyDtos == null) return null;
         return facultyDtos.stream()
                 .map(e -> {

@@ -14,7 +14,47 @@ import java.util.stream.Collectors;
 public interface GroupMapper {
     GroupMapper INSTANCE = Mappers.getMapper(GroupMapper.class);
 
+    @Mapping(target = "faculty", source = "groupDto.faculty", qualifiedByName = "toFacultyToEntity")
+    @Mapping(target = "students", source = "groupDto.students", qualifiedByName = "toStudentsToEntity")
+    @Mapping(target = "journal", source = "groupDto.journal", qualifiedByName = "toJournalToEntity")
+    @Mapping(target = "subjects", source = "groupDto.subjects", qualifiedByName = "toSubjectsToEntity")
     Group toEntity(GroupDto groupDto);
+
+    @Named("toFacultyToEntity")
+    default Faculty toFacultyToEntity(FacultyDto faculty){
+        if (faculty == null) return null;
+        faculty.setGroups(null);
+        return FacultyMapper.INSTANCE.toEntity(faculty);
+    }
+
+    @Named("toStudentsToEntity")
+    default List<Student> toStudentsToEntity(List<StudentDto> students){
+        if (students == null) return null;
+        return students.stream()
+                .map(e -> {
+                    e.setGroup(null);
+                    return StudentMapper.INSTANCE.toEntity(e);
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Named("toJournalToEntity")
+    default Journal toJournalToEntity(JournalDto journal){
+        if (journal == null) return null;
+        journal.setGroup(null);
+        return JournalMapper.INSTANCE.toEntity(journal);
+    }
+
+    @Named("toSubjectsToEntity")
+    default List<Subject> toSubjectsToEntity(List<SubjectDto> subjects){
+        if (subjects == null) return null;
+        return subjects.stream()
+                .map(e -> {
+                    e.setGroups(null);
+                    return SubjectMapper.INSTANCE.toEntity(e);
+                })
+                .collect(Collectors.toList());
+    }
 
     @Mapping(target = "faculty", source = "group.faculty", qualifiedByName = "toFacultyToDto")
     @Mapping(target = "students", source = "group.students", qualifiedByName = "toStudentsToDto")

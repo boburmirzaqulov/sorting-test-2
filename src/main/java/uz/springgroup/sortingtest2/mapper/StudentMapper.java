@@ -14,7 +14,27 @@ import java.util.stream.Collectors;
 public interface StudentMapper {
     StudentMapper INSTANCE = Mappers.getMapper(StudentMapper.class);
 
+    @Mapping(target = "group", source = "studentDto.group", qualifiedByName = "toGroupToEntity")
+    @Mapping(target = "markList", source = "studentDto.markList", qualifiedByName = "toMarkListToEntity")
     Student toEntity(StudentDto studentDto);
+
+    @Named("toGroupToEntity")
+    default Group toGroupToEntity(GroupDto group){
+        if (group == null) return null;
+        group.setStudents(null);
+        return GroupMapper.INSTANCE.toEntity(group);
+    }
+
+    @Named("toMarkListToEntity")
+    default List<Mark> toMarkListToEntity(List<MarkDto> markList){
+        if (markList == null) return null;
+        return markList.stream()
+                .map(e -> {
+                    e.setStudent(null);
+                    return MarkMapper.INSTANCE.toEntity(e);
+                })
+                .collect(Collectors.toList());
+    }
 
     @Mapping(target = "group", source = "student.group", qualifiedByName = "toGroupToDto")
     @Mapping(target = "markList", source = "student.markList", qualifiedByName = "toMarkListToDto")

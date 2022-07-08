@@ -18,7 +18,27 @@ import java.util.stream.Collectors;
 public interface FacultyMapper {
     FacultyMapper INSTANCE = Mappers.getMapper(FacultyMapper.class);
 
+    @Mapping(target = "university", source = "facultyDto.university", qualifiedByName = "toUniversityToEntity")
+    @Mapping(target = "groups", source = "facultyDto.groups", qualifiedByName = "toGroupsToEntity")
     Faculty toEntity(FacultyDto facultyDto);
+
+    @Named("toUniversityToEntity")
+    default University toUniversityToEntity(UniversityDto universityDto){
+        if (universityDto == null) return null;
+        universityDto.setFaculties(null);
+        return UniversityMapper.INSTANCE.toEntity(universityDto);
+    }
+
+    @Named("toGroupsToEntity")
+    default List<Group> toGroupsToEntity(List<GroupDto> groups){
+        if (groups == null) return null;
+        return groups.stream()
+                .map(e -> {
+                    e.setFaculty(null);
+                    return GroupMapper.INSTANCE.toEntity(e);
+                })
+                .collect(Collectors.toList());
+    }
 
     @Mapping(target = "university", source = "faculty.university", qualifiedByName = "toUniversityToDto")
     @Mapping(target = "groups", source = "faculty.groups", qualifiedByName = "toGroupsToDto")
@@ -41,8 +61,4 @@ public interface FacultyMapper {
                 })
                 .collect(Collectors.toList());
     }
-
-    List<Faculty> toEntity(List<FacultyDto> facultyDtos);
-
-    List<FacultyDto> toDto(List<Faculty> faculties);
 }

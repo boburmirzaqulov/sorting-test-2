@@ -17,7 +17,23 @@ import uz.springgroup.sortingtest2.entity.Subject;
 public interface MarkMapper {
     MarkMapper INSTANCE = Mappers.getMapper(MarkMapper.class);
 
+    @Mapping(target = "student", source = "markDto.student", qualifiedByName = "toStudentToEntity")
+    @Mapping(target = "subject", source = "markDto.subject", qualifiedByName = "toSubjectToEntity")
     Mark toEntity(MarkDto markDto);
+
+    @Named("toStudentToEntity")
+    default Student toStudentToEntity(StudentDto student){
+        if (student == null) return null;
+        student.setMarkList(null);
+        return StudentMapper.INSTANCE.toEntity(student);
+    }
+
+    @Named("toSubjectToEntity")
+    default Subject toSubjectToEntity(SubjectDto subject){
+        if (subject == null) return null;
+        subject.setJournals(null);
+        return SubjectMapper.INSTANCE.toEntity(subject);
+    }
 
     @Mapping(target = "student", source = "mark.student", qualifiedByName = "toStudentToDto")
     @Mapping(target = "subject", source = "mark.subject", qualifiedByName = "toSubjectToDto")

@@ -19,7 +19,28 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface JournalMapper {
     JournalMapper INSTANCE = Mappers.getMapper(JournalMapper.class);
+
+    @Mapping(target = "group", source = "journalDto.group", qualifiedByName = "toGroupToEntity")
+    @Mapping(target = "subjects", source = "journalDto.subjects", qualifiedByName = "toSubjectsToEntity")
     Journal toEntity(JournalDto journalDto);
+
+    @Named("toGroupToEntity")
+    default Group toGroupToEntity(GroupDto group){
+        if (group == null) return null;
+        group.setJournal(null);
+        return GroupMapper.INSTANCE.toEntity(group);
+    }
+
+    @Named("toSubjectsToEntity")
+    default List<Subject> toSubjectsToEntity(List<SubjectDto> subjects){
+        if (subjects == null) return null;
+        return subjects.stream()
+                .map(e -> {
+                    e.setJournals(null);
+                    return SubjectMapper.INSTANCE.toEntity(e);
+                })
+                .collect(Collectors.toList());
+    }
 
     @Mapping(target = "group", source = "journal.group", qualifiedByName = "toGroupToDto")
     @Mapping(target = "subjects", source = "journal.subjects", qualifiedByName = "toSubjectsToDto")
