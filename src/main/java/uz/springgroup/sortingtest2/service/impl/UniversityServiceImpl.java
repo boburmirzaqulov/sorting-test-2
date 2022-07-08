@@ -102,7 +102,7 @@ public class UniversityServiceImpl implements UniversityService {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
         try {
-            Optional<University> universityOptional = universityRepository.findById(id);
+            Optional<University> universityOptional = universityRepository.findByIdAndIsActiveTrue(id);
             if (universityOptional.isEmpty()) {
                 return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
             }

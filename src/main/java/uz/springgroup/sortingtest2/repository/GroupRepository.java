@@ -10,6 +10,7 @@ import uz.springgroup.sortingtest2.entity.GroupSt;
 import uz.springgroup.sortingtest2.entity.University;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Integer> {
@@ -23,4 +24,6 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     List<Group> findAllByIdIn(List<Integer> groupsIds);
 
     Page<Group> findAllByIsActiveTrue(Pageable pageable);
+
+    Optional<Group> findByIdAndIsActiveTrue(Integer id);
 }

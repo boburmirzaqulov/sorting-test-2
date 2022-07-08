@@ -22,4 +22,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     List<Student> findAllByGroupIdIn(List<Integer> groupIds);
 
     Page<Student> findAllByIsActiveTrue(Pageable pageable);
+
+    Optional<Student> findByIdAndIsActiveTrue(Integer id);
 }

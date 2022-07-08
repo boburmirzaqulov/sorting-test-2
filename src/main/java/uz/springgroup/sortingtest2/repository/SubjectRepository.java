@@ -7,7 +7,11 @@ import org.springframework.stereotype.Repository;
 import uz.springgroup.sortingtest2.entity.Subject;
 import uz.springgroup.sortingtest2.entity.University;
 
+import java.util.Optional;
+
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Integer> {
     Page<Subject> findAllByIsActiveTrue(Pageable pageable);
+
+    Optional<Subject> findByIdAndIsActiveTrue(Integer id);
 }

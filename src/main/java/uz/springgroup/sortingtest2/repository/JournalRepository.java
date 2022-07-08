@@ -8,10 +8,13 @@ import uz.springgroup.sortingtest2.entity.Journal;
 import uz.springgroup.sortingtest2.entity.University;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface JournalRepository extends JpaRepository<Journal, Integer> {
     List<Journal> findAllByGroupIdIn(List<Integer> groupIds);
 
     Page<Journal> findAllByIsActiveTrue(Pageable pageable);
+
+    Optional<Journal> findByIdAndIsActiveTrue(Integer id);
 }
