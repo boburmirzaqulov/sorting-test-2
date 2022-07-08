@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
+import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
@@ -43,13 +44,14 @@ public class UniversityServiceImpl implements UniversityService {
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.validationFaculty(universityDto, errors, facultyRepository, facultyMapper);
-        if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, universityDto, errors);
+        if (!errors.isEmpty())
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, universityDto, errors);
 
         universityDto.setId(null);
         University university = universityMapper.toEntity(universityDto);
         try {
             universityRepository.save(university);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage(), e);
         }
@@ -67,7 +69,7 @@ public class UniversityServiceImpl implements UniversityService {
         // V A L I D A T I O N
         ValidationService.getAllGeneral(params, errors);
 
-        if(errors.isEmpty()){
+        if (errors.isEmpty()) {
             int page = StringHelper.getNumber(params.getFirst("page"));
             int size = StringHelper.getNumber(params.getFirst("size"));
             try {
@@ -111,7 +113,7 @@ public class UniversityServiceImpl implements UniversityService {
                 faculty.setGroups(null);
             }
             return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage(), e);
         }
@@ -120,26 +122,48 @@ public class UniversityServiceImpl implements UniversityService {
     @Transactional
     @Override
     public ResponseDto<?> update(UniversityDto universityDto) {
-        // W I T H   V A L I D A T I O N
-        ResponseDto<?> responseDto = GeneralService.updateGeneral(universityRepository, universityDto.getId());
+        // V A L I D A T I O N
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.idValid(universityDto.getId(), errors);
 
-        if (responseDto == null) {
-            List<Faculty> faculties = universityDto.getFaculties().stream()
-                    .map(facultyMapper::toEntity)
-                    .collect(Collectors.toList());
+        List<Faculty> facultiesDtos = new ArrayList<>();
+        try {
+            Optional<University> universityOptional = universityRepository.findByIdAndIsActiveTrue(universityDto.getId());
 
-            universityDto.setFaculties(null);
-            University university = universityMapper.toEntity(universityDto);
-            try {
-                universityRepository.save(university);
-            } catch (Exception e){
-                e.printStackTrace();
-                throw new DatabaseException(e.getMessage(), e);
+            if (universityOptional.isEmpty()) {
+                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, universityDto);
             }
-            university.setFaculties(facultyService.updateWithUniversity(university, faculties));
-            return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
+            University university = universityOptional.get();
+            List<FacultyDto> facultyDtos = universityDto.getFaculties();
+            if (facultyDtos != null){
+                facultiesDtos.addAll(facultyDtos.stream()
+                        .map(facultyMapper::toEntity)
+                        .collect(Collectors.toList()));
+            }
+            List<Faculty> faculties = university.getFaculties();
+            if (faculties != null) {
+                faculties.removeAll(facultiesDtos);
+                for (Faculty faculty : faculties) {
+                    facultyService.delete(faculty.getId());
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
         }
-        return responseDto;
+
+        University university = universityMapper.toEntity(universityDto);
+        try {
+            universityRepository.save(university);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
+        }
+        if (!facultiesDtos.isEmpty()) {
+            university.setFaculties(facultyService.updateWithUniversity(university, facultiesDtos));
+        }
+        return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
     }
 
     @Override
@@ -147,7 +171,7 @@ public class UniversityServiceImpl implements UniversityService {
         // W I T H   V A L I D A T I O N
         ResponseDto<Integer> res = GeneralService.deleteGeneral(universityRepository, id);
 
-        if (res == null){
+        if (res == null) {
             try {
                 Optional<University> universityOptional = universityRepository.findById(id);
                 if (universityOptional.isPresent()) {
@@ -156,7 +180,7 @@ public class UniversityServiceImpl implements UniversityService {
                     setActive(false, universities);
                     return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new DatabaseException(e.getMessage(), e);
             }
@@ -181,13 +205,13 @@ public class UniversityServiceImpl implements UniversityService {
                 return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(universities.get(0)));
             }
             return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage(), e);
         }
     }
 
-    private void setActive(boolean b, List<University> universities){
+    private void setActive(boolean b, List<University> universities) {
         List<Integer> universityIds = new ArrayList<>();
         for (University university : universities) {
             university.setActive(b);
@@ -196,7 +220,7 @@ public class UniversityServiceImpl implements UniversityService {
         facultyService.setActiveAll(b, universityIds);
         try {
             universityRepository.saveAll(universities);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage(), e);
         }

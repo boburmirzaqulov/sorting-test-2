@@ -127,16 +127,26 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public ResponseDto<?> update(FacultyDto facultyDto) {
-        // W I T H   V A L I D A T I O N
-        ResponseDto<?> responseDto = GeneralService.updateGeneral(facultyRepository, facultyDto.getId());
-
-        if (responseDto == null) {
-            Faculty faculty = facultyMapper.toEntity(facultyDto);
-            facultyRepository.save(faculty);
-            return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, facultyMapper.toDto(faculty));
+        // V A L I D A T I O N
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.idValid(facultyDto.getId(), errors);
+        if (!errors.isEmpty()) {
+            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
 
-        return responseDto;
+        try {
+            if (!facultyRepository.existsByIdAndIsActiveTrue(facultyDto.getId())) {
+                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, facultyDto);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
+        }
+
+        Faculty faculty = facultyMapper.toEntity(facultyDto);
+        facultyRepository.save(faculty);
+        return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, facultyMapper.toDto(faculty));
+
     }
 
     @Override

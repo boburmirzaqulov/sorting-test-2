@@ -13,4 +13,6 @@ public interface UniversityRepository extends JpaRepository<University, Integer>
     Page<University> findAllByIsActiveTrue(Pageable pageable);
 
     Optional<University> findByIdAndIsActiveTrue(Integer id);
+
+    boolean existsByIdAndIsActiveTrue(Integer id);
 }

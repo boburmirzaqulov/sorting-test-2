@@ -22,4 +22,6 @@ public interface FacultyRepository extends JpaRepository<Faculty, Integer> {
     Page<Faculty> findAllByIsActiveTrue(Pageable pageable);
 
     Optional<Faculty> findByIdAndIsActiveTrue(Integer id);
+
+    boolean existsByIdAndIsActiveTrue(Integer id);
 }

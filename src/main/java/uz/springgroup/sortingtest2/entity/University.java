@@ -34,5 +34,4 @@ public class University {
 
     @Column(name = "is_active")
     private boolean isActive;
-
 }

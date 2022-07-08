@@ -45,24 +45,4 @@ public class GeneralService {
 
         return null;
     }
-
-
-    public static ResponseDto<?> updateGeneral(JpaRepository repository, Integer id){
-        // V A L I D A T I O N
-        List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.idValid(id, errors);
-        if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
-        }
-
-        try {
-            if (!repository.existsById(id)) {
-                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, id);
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
-        }
-        return null;
-    }
 }
