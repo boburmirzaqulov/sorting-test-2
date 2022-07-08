@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface FacultyRepository extends JpaRepository<Faculty, Integer> {
-    @Query(value = "select g.name, count(s.id) num from faculty f join groups g on g.faculty_id = f.id join student s on s.group_id = g.id where f.id = ?1 group by g.id", nativeQuery = true)
+    @Query(value = "select g.name, count(s.id) num from faculty f join groups g on g.faculty_id = f.id join student s on s.group_id = g.id where f.id = ?1 and f.is_active and g.is_active and s.is_active group by g.id", nativeQuery = true)
     List<GroupSt> groupSt(Integer id);
 
     List<Faculty> findAllByUniversityIdIn(List<Integer> universityIds);
