@@ -3,7 +3,6 @@ package uz.springgroup.sortingtest2.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import uz.springgroup.sortingtest2.entity.Journal;
 import uz.springgroup.sortingtest2.entity.Student;
 import uz.springgroup.sortingtest2.entity.SubjectSt;
 
@@ -18,6 +17,4 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     Optional<Student> findByName(String name);
 
     List<Student> findAllByGroupIdIn(List<Integer> groupIds);
-
-    List<Student> findAllByGroupId(Integer groupId);
 }
