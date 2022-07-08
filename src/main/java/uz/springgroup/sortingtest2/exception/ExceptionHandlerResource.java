@@ -19,22 +19,14 @@ import java.util.List;
 public class ExceptionHandlerResource{
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ValidatorDto>> handleException(MethodArgumentNotValidException e, WebRequest request){
-//        Map<String, String> errors = new HashMap<>();
         List<ValidatorDto> list = new ArrayList<>();
         e.getBindingResult().getAllErrors()
                 .forEach(er -> {
                     String fieldName = ((FieldError) er).getField();
                     String message = er.getDefaultMessage();
                     list.add(new ValidatorDto(fieldName, message));
-//                    errors.put(fieldName, message);
                 });
         return ResponseEntity.status(400).body(list);
-    }
-
-    @ExceptionHandler(ValidationCustomException.class)
-    public ResponseEntity<List<ValidatorDto>> handleValidationCustomException(ValidationCustomException e){
-        ValidationMessage validationMessage = new Gson().fromJson(e.getMessage(),ValidationMessage.class);
-        return ResponseEntity.status(400).body(validationMessage.getData());
     }
 
     @ExceptionHandler(DatabaseException.class)
