@@ -19,8 +19,6 @@ public interface FacultyService {
 
     ResponseDto<Integer> delete(Integer id);
 
-    List<Faculty> saveAll(University university, List<FacultyDto> facultyDtos);
-
     List<Faculty> updateWithUniversity(University university, List<Faculty> faculties);
 
     ResponseDto<List<?>> getAllGroupsById(Integer id);

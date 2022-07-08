@@ -38,7 +38,7 @@ public class ValidationService {
         if (!isSize) errors.add(new ValidatorDto("size", AppMessages.NOT_FOUND));
     }
 
-    public static void validationFaculty(UniversityDto universityDto, List<ValidatorDto> errors, FacultyRepository facultyRepository, FacultyMapper facultyMapper) {
+    public static void validationFaculty(UniversityDto universityDto, List<ValidatorDto> errors) {
         if (universityDto.getFaculties() != null) {
             List<FacultyDto> facultyDtos = new ArrayList<>();
             for (int i = 0; i < universityDto.getFaculties().size(); i++) {
@@ -53,28 +53,6 @@ public class ValidationService {
                         errors.add(new ValidatorDto(
                                 "Faculty with University ID = " + facultyDto.getUniversity().getId(),
                                 AppMessages.INCORRECT_TYPE));
-                    }
-                }
-            }
-
-            if (!facultyDtos.isEmpty()) {
-                List<FacultyDto> facultiesDB = facultyRepository.findAllById(
-                                facultyDtos.stream()
-                                        .map(FacultyDto::getId)
-                                        .collect(Collectors.toList()))
-                        .stream()
-                        .map(facultyMapper::toDto)
-                        .collect(Collectors.toList());
-
-                if (facultiesDB.size() != facultyDtos.size()) {
-                    List<FacultyDto> facultiesNotFound = facultyDtos.stream()
-                            .filter(e -> !facultiesDB.contains(e))
-                            .collect(Collectors.toList());
-
-                    for (FacultyDto facultyDto : facultiesNotFound) {
-                        errors.add(new ValidatorDto(
-                                String.format("Faculty with ID = %d", facultyDto.getId()),
-                                AppMessages.NOT_FOUND));
                     }
                 }
             }

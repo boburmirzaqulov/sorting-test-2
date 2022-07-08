@@ -16,24 +16,9 @@ import java.util.List;
 public class GeneralService {
 
     public static ResponseDto<Integer> deleteGeneral(JpaRepository repository, Integer id){
-        // V A L I D A T I O N
-        List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.idValid(id, errors);
-        if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
-        }
 
-        boolean existsById = false;
-        try {
-            existsById = repository.existsById(id);
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
-        }
 
-        if (!existsById){
-            new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
-        }
+
 
 //        try {
 //            repository.deleteById(id);

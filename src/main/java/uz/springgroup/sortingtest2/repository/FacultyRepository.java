@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.entity.GroupSt;
-import uz.springgroup.sortingtest2.entity.University;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,5 +22,9 @@ public interface FacultyRepository extends JpaRepository<Faculty, Integer> {
 
     Optional<Faculty> findByIdAndIsActiveTrue(Integer id);
 
+    Optional<Faculty> findByIdAndIsActiveFalse(Integer id);
+
     boolean existsByIdAndIsActiveTrue(Integer id);
+
+    List<Faculty> findAllByIdInAndIsActiveTrue(List<Integer> Ids);
 }

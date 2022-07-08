@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import uz.springgroup.sortingtest2.entity.Student;
 import uz.springgroup.sortingtest2.entity.SubjectSt;
-import uz.springgroup.sortingtest2.entity.University;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,4 +23,8 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     Page<Student> findAllByIsActiveTrue(Pageable pageable);
 
     Optional<Student> findByIdAndIsActiveTrue(Integer id);
+
+    Optional<Student> findByIdAndIsActiveFalse(Integer id);
+
+    boolean existsByIdAndIsActiveTrue(Integer id);
 }

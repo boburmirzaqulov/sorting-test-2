@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import uz.springgroup.sortingtest2.entity.Journal;
-import uz.springgroup.sortingtest2.entity.University;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,4 +16,8 @@ public interface JournalRepository extends JpaRepository<Journal, Integer> {
     Page<Journal> findAllByIsActiveTrue(Pageable pageable);
 
     Optional<Journal> findByIdAndIsActiveTrue(Integer id);
+
+    Optional<Journal> findByIdAndIsActiveFalse(Integer id);
+
+    boolean existsByIdAndIsActiveTrue(Integer id);
 }

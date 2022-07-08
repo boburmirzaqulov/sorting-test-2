@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import uz.springgroup.sortingtest2.entity.Group;
 import uz.springgroup.sortingtest2.entity.GroupSt;
-import uz.springgroup.sortingtest2.entity.University;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,4 +25,8 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     Page<Group> findAllByIsActiveTrue(Pageable pageable);
 
     Optional<Group> findByIdAndIsActiveTrue(Integer id);
+
+    Optional<Group> findByIdAndIsActiveFalse(Integer id);
+
+    boolean existsByIdAndIsActiveTrue(Integer id);
 }

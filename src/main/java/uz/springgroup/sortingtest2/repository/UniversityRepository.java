@@ -14,5 +14,7 @@ public interface UniversityRepository extends JpaRepository<University, Integer>
 
     Optional<University> findByIdAndIsActiveTrue(Integer id);
 
+    Optional<University> findByIdAndIsActiveFalse(Integer id);
+
     boolean existsByIdAndIsActiveTrue(Integer id);
 }

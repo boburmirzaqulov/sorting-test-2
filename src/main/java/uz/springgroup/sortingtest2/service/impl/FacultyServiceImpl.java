@@ -117,7 +117,7 @@ public class FacultyServiceImpl implements FacultyService {
         if (!errors.isEmpty()) {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
-        Optional<Faculty> facultyOptional = facultyRepository.findById(id);
+        Optional<Faculty> facultyOptional = facultyRepository.findByIdAndIsActiveTrue(id);
         if (facultyOptional.isEmpty()) {
             return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
         }
@@ -152,12 +152,16 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public ResponseDto<Integer> delete(Integer id) {
         /**
-         * W I T H   V A L I D A T I O N
+         * V A L I D A T I O N
          */
-        ResponseDto<Integer> res = GeneralService.deleteGeneral(facultyRepository, id);
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.idValid(id, errors);
+        if (!errors.isEmpty()) {
+            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+        }
 
-        if (res == null) {
-            Optional<Faculty> facultyOptional = facultyRepository.findById(id);
+        try {
+            Optional<Faculty> facultyOptional = facultyRepository.findByIdAndIsActiveTrue(id);
             if (facultyOptional.isPresent()) {
                 Faculty faculty = facultyOptional.get();
                 faculty.setActive(false);
@@ -169,17 +173,14 @@ public class FacultyServiceImpl implements FacultyService {
                     throw new DatabaseException(e.getMessage(), e);
                 }
                 return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
+            } else {
+                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
             }
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(),e);
         }
-        return res;
-    }
 
-    @Override
-    public List<Faculty> saveAll(University university, List<FacultyDto> facultyDtos) {
-        List<Faculty> faculties = facultyDtos.stream()
-                .map(facultyMapper::toEntity)
-                .collect(Collectors.toList());
-        return updateWithUniversity(university, faculties);
     }
 
     @Transactional

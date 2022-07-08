@@ -6,6 +6,7 @@ import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.GroupDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
+import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Group;
 import uz.springgroup.sortingtest2.entity.GroupSt;
 import uz.springgroup.sortingtest2.exception.DatabaseException;
@@ -14,6 +15,7 @@ import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.mapper.GroupMapper;
 import uz.springgroup.sortingtest2.repository.GroupRepository;
 import uz.springgroup.sortingtest2.service.GroupService;
+import uz.springgroup.sortingtest2.service.ValidationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,6 @@ public class GroupServiceImpl implements GroupService {
     private final StudentServiceImpl studentService;
     private final JournalServiceImpl journalService;
     private final GroupMapper groupMapper;
-
 
 
     @Override
@@ -52,24 +53,30 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseDto<Integer> delete(Integer id) {
-        // W I T H   V A L I D A T I O N
-        ResponseDto<Integer> res = GeneralService.deleteGeneral(groupRepository, id);
-
-        if (res == null){
-            try {
-                Optional<Group> groupOptional = groupRepository.findById(id);
-                if (groupOptional.isPresent()) {
-                    List<Group> groups = new ArrayList<>();
-                    groups.add(groupOptional.get());
-                    setActive(false, groups);
-                    return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
-                }
-            } catch (Exception e){
-                e.printStackTrace();
-                throw new DatabaseException(e.getMessage(),e);
-            }
+        /**
+         * V A L I D A T I O N
+         */
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.idValid(id, errors);
+        if (!errors.isEmpty()) {
+            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
-        return res;
+
+        try {
+            Optional<Group> groupOptional = groupRepository.findByIdAndIsActiveTrue(id);
+            if (groupOptional.isPresent()) {
+                List<Group> groups = new ArrayList<>();
+                groups.add(groupOptional.get());
+                setActive(false, groups);
+                return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
+            } else {
+                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
+        }
+
     }
 
     @Override

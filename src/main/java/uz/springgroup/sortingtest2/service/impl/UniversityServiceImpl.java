@@ -43,7 +43,40 @@ public class UniversityServiceImpl implements UniversityService {
     public ResponseDto<UniversityDto> save(UniversityDto universityDto) {
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.validationFaculty(universityDto, errors, facultyRepository, facultyMapper);
+        ValidationService.validationFaculty(universityDto, errors);
+        if (!errors.isEmpty())
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, universityDto, errors);
+
+        List<FacultyDto> facultyDtos = universityDto.getFaculties();
+        List<Integer> facultyIds = new ArrayList<>();
+        List<Faculty> facultiesDtos = new ArrayList<>();
+        List<Faculty> facultiesDtosWithId = new ArrayList<>();
+        if (!facultyDtos.isEmpty()) {
+
+            for (FacultyDto facultyDto : facultyDtos) {
+                Faculty faculty = facultyMapper.toEntity(facultyDto);
+                facultiesDtos.add(faculty);
+                if (faculty.getId() != null) {
+                    facultyIds.add(facultyDto.getId());
+                    facultiesDtosWithId.add(faculty);
+                }
+            }
+
+            List<Faculty> facultiesDB = facultyRepository.findAllByIdInAndIsActiveTrue(facultyIds);
+
+            if (facultiesDB.size() != facultiesDtosWithId.size()) {
+                if (!facultiesDB.isEmpty()) {
+                    facultiesDtosWithId.removeAll(facultiesDB);
+                    if (!facultiesDtosWithId.isEmpty()){
+                        for (Faculty faculty : facultiesDtosWithId) {
+                            errors.add(new ValidatorDto(
+                                    String.format("Faculty with ID = %d", faculty.getId()),
+                                    AppMessages.NOT_FOUND));
+                        }
+                    }
+                }
+            }
+        }
         if (!errors.isEmpty())
             return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, universityDto, errors);
 
@@ -57,7 +90,7 @@ public class UniversityServiceImpl implements UniversityService {
         }
 
         // S A V E    F A C U L T I E S
-        university.setFaculties(facultyService.saveAll(university, universityDto.getFaculties()));
+        university.setFaculties(facultyService.updateWithUniversity(university, facultiesDtos));
 
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
     }
@@ -133,16 +166,18 @@ public class UniversityServiceImpl implements UniversityService {
             if (universityOptional.isEmpty()) {
                 return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, universityDto);
             }
+
             University university = universityOptional.get();
             List<FacultyDto> facultyDtos = universityDto.getFaculties();
-            if (facultyDtos != null){
+            if (facultyDtos != null) {
                 facultiesDtos.addAll(facultyDtos.stream()
                         .map(facultyMapper::toEntity)
                         .collect(Collectors.toList()));
             }
             List<Faculty> faculties = university.getFaculties();
-            if (faculties != null) {
+            if (faculties != null && !faculties.isEmpty()) {
                 faculties.removeAll(facultiesDtos);
+                // SET ACTIVE TO FALSE
                 for (Faculty faculty : faculties) {
                     facultyService.delete(faculty.getId());
                 }
@@ -160,6 +195,8 @@ public class UniversityServiceImpl implements UniversityService {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage(), e);
         }
+
+        // U P D A T I N G   F A C U L T I E S
         if (!facultiesDtos.isEmpty()) {
             university.setFaculties(facultyService.updateWithUniversity(university, facultiesDtos));
         }
@@ -168,24 +205,29 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public ResponseDto<Integer> delete(Integer id) {
-        // W I T H   V A L I D A T I O N
-        ResponseDto<Integer> res = GeneralService.deleteGeneral(universityRepository, id);
-
-        if (res == null) {
-            try {
-                Optional<University> universityOptional = universityRepository.findById(id);
-                if (universityOptional.isPresent()) {
-                    List<University> universities = new ArrayList<>();
-                    universities.add(universityOptional.get());
-                    setActive(false, universities);
-                    return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new DatabaseException(e.getMessage(), e);
-            }
+        /**
+         * V A L I D A T I O N
+         */
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.idValid(id, errors);
+        if (!errors.isEmpty()) {
+            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
-        return res;
+
+        try {
+            Optional<University> universityOptional = universityRepository.findByIdAndIsActiveTrue(id);
+            if (universityOptional.isPresent()) {
+                List<University> universities = new ArrayList<>();
+                universities.add(universityOptional.get());
+                setActive(false, universities);
+                return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
+            } else {
+                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -197,7 +239,7 @@ public class UniversityServiceImpl implements UniversityService {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
         try {
-            Optional<University> universityOptional = universityRepository.findById(id);
+            Optional<University> universityOptional = universityRepository.findByIdAndIsActiveFalse(id);
             if (universityOptional.isPresent()) {
                 List<University> universities = new ArrayList<>();
                 universities.add(universityOptional.get());
