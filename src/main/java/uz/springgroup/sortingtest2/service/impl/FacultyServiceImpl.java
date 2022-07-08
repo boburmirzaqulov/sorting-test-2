@@ -96,11 +96,11 @@ public class FacultyServiceImpl implements FacultyService {
                 PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
                 Page<Faculty> facultyPage = facultyRepository.findAll(pageRequest);
 
-                List<FacultyDto> facultyDtoList = facultyRepository.findAll()
-                        .stream()
+                List<FacultyDto> facultyDtos = facultyPage.get()
                         .map(facultyMapper::toDto)
                         .collect(Collectors.toList());
-                Page<FacultyDto> result = new PageImpl<>(facultyDtoList, facultyPage.getPageable(), facultyPage.getTotalPages());
+
+                Page<FacultyDto> result = new PageImpl<>(facultyDtos, facultyPage.getPageable(), facultyPage.getTotalPages());
                 return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, result);
             } catch (Exception e) {
                 e.printStackTrace();

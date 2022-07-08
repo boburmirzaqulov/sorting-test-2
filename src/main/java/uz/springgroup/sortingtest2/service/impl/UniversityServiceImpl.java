@@ -69,8 +69,7 @@ public class UniversityServiceImpl implements UniversityService {
                 PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
                 Page<University> universityPage = universityRepository.findAll(pageRequest);
 
-                List<UniversityDto> universityDtoList = universityRepository.findAll()
-                        .stream()
+                List<UniversityDto> universityDtoList = universityPage.get()
                         .map(e -> {
                             for (Faculty faculty : e.getFaculties()) {
                                 faculty.setGroups(null);
@@ -78,11 +77,12 @@ public class UniversityServiceImpl implements UniversityService {
                             return universityMapper.toDto(e);
                         })
                         .collect(Collectors.toList());
+
                 Page<UniversityDto> result = new PageImpl<>(universityDtoList, universityPage.getPageable(), universityPage.getTotalPages());
                 return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, result);
             } catch (Exception e) {
                 e.printStackTrace();
-                return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR,null);
+                throw new DatabaseException(e.getMessage(), e);
             }
         }
         return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, params, errors);
