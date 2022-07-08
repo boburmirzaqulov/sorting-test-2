@@ -12,4 +12,8 @@ import java.util.List;
 public interface GroupRepository extends JpaRepository<Group, Integer> {
     @Query(value = "select s.name, avg(m.mark) num from student s inner join mark m on m.student_id = s.id inner join groups g on g.id = s.group_id where g.id = ?1 group by s.name order by num desc", nativeQuery = true)
     List<GroupSt> getInfoStudents(Integer id);
+
+    List<Group> findAllByFacultyIdIn(List<Integer> facultyIds);
+
+    List<Group> findAllByFacultyId(Integer facultyId);
 }

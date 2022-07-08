@@ -31,4 +31,7 @@ public class Student {
 
     @OneToMany(mappedBy = "student")
     private List<Mark> markList;
+
+    @Column(name = "is_active")
+    private boolean isActive;
 }

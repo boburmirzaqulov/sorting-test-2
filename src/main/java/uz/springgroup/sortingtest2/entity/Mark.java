@@ -35,4 +35,7 @@ public class Mark {
     private Integer mark;
 
     private Date date;
+
+    @Column(name = "is_active")
+    private boolean isActive;
 }

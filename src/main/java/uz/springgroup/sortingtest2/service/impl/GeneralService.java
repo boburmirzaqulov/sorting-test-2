@@ -22,17 +22,29 @@ public class GeneralService {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
 
-        if (!repository.existsById(id)){
-            new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
-        }
+        boolean existsById = false;
         try {
-            repository.deleteById(id);
+            existsById = repository.existsById(id);
         } catch (Exception e){
             e.printStackTrace();
             return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
         }
-        return new ResponseDto<>(true, AppCode.OK, AppMessages.DELETED, id);
+
+        if (!existsById){
+            new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        }
+
+//        try {
+//            repository.deleteById(id);
+//        } catch (Exception e){
+//            e.printStackTrace();
+//            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
+//        }
+//        return new ResponseDto<>(true, AppCode.OK, AppMessages.DELETED, id);
+
+        return null;
     }
+
 
     public static ResponseDto<?> updateGeneral(JpaRepository repository, Integer id){
         // V A L I D A T I O N

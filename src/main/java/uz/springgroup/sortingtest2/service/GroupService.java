@@ -20,4 +20,8 @@ public interface GroupService {
     ResponseDto<Integer> delete(Integer id);
 
     ResponseDto<List<GroupSt>> getStudents(Integer id);
+
+    boolean setActiveAll(boolean b, List<Integer> facultyIds);
+
+    boolean setActiveOne(boolean b, Integer facultyId);
 }

@@ -11,4 +11,5 @@ import java.util.List;
 
 @Repository
 public interface MarkRepository extends JpaRepository<Mark, Integer> {
+    List<Mark> findAllByStudentIdIn(List<Integer> studentIds);
 }

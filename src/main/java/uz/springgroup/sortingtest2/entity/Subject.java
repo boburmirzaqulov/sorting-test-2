@@ -43,6 +43,9 @@ public class Subject {
     @OneToMany(mappedBy = "subject")
     private List<Mark> markList;
 
+    @Column(name = "is_active")
+    private boolean isActive;
+
     public Subject(Integer id, String name) {
         this.id = id;
         this.name = name;

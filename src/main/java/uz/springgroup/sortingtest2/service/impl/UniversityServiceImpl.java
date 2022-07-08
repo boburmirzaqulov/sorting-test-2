@@ -122,7 +122,12 @@ public class UniversityServiceImpl implements UniversityService {
             University university = universityMapper.toEntity(universityDto);
             universityRepository.save(university);
 
-            university.setFaculties(facultyService.updateWithUniversity(university, faculties));
+            faculties = facultyService.updateWithUniversity(university, faculties);
+            if (faculties == null){
+                return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
+            }
+
+            university.setFaculties(faculties);
             return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
         }
 
@@ -132,6 +137,22 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public ResponseDto<Integer> delete(Integer id) {
         // W I T H   V A L I D A T I O N
-        return GeneralService.deleteGeneral(universityRepository, id);
+        ResponseDto<Integer> res = GeneralService.deleteGeneral(universityRepository, id);
+
+        if (res == null){
+            Optional<University> universityOptional = universityRepository.findById(id);
+            if (universityOptional.isPresent()) {
+                University university = universityOptional.get();
+                university.setActive(false);
+                boolean faculty = facultyService.setActiveOne(false, id);
+                if (faculty){
+                    universityRepository.save(university);
+                    return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
+                } else {
+                    return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, id);
+                }
+            }
+        }
+        return res;
     }
 }

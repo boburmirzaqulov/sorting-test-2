@@ -10,4 +10,6 @@ public interface StudentService {
     ResponseDto<List<SubjectSt>> subjectSt(Integer id);
 
     ResponseDto<StudentInfo> findByName(String name);
+
+    boolean setActiveAll(boolean b, List<Integer> groupIds);
 }

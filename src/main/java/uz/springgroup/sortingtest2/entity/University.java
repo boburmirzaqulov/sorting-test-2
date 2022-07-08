@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -30,5 +31,8 @@ public class University {
 
     @OneToMany(mappedBy = "university")
     private List<Faculty> faculties;
+
+    @Column(name = "is_active")
+    private boolean isActive;
 
 }

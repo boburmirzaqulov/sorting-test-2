@@ -46,4 +46,7 @@ public class Group {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Subject> subjects;
 
+    @Column(name = "is_active")
+    private boolean isActive;
+
 }

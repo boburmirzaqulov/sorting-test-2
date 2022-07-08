@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class FacultyServiceImpl implements FacultyService {
     private final FacultyRepository facultyRepository;
     private final FacultyMapper facultyMapper;
+    private final GroupServiceImpl groupService;
 
     @Override
     public ResponseDto<FacultyDto> save(FacultyDto facultyDto) {
@@ -110,12 +111,17 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public List<Faculty> updateWithUniversity(University university, List<Faculty> faculties) {
-        for (int i = 0; i < faculties.size(); i++) {
-            faculties.get(i).setUniversity(university);
-        }
-        facultyRepository.saveAll(faculties);
-        for (int i = 0; i < faculties.size(); i++) {
-            faculties.get(i).setUniversity(null);
+        try {
+            for (int i = 0; i < faculties.size(); i++) {
+                faculties.get(i).setUniversity(university);
+            }
+            facultyRepository.saveAll(faculties);
+            for (int i = 0; i < faculties.size(); i++) {
+                faculties.get(i).setUniversity(null);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            faculties = null;
         }
         return faculties;
     }
@@ -124,5 +130,27 @@ public class FacultyServiceImpl implements FacultyService {
     public ResponseDto<List<?>> getAllGroupsById(Integer id) {
         List<GroupSt> groupSts = facultyRepository.groupSt(id);
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, groupSts);
+    }
+
+    @Override
+    public boolean setActiveOne(boolean b, Integer universityId) {
+        try {
+            List<Faculty> faculties = facultyRepository.findAllByUniversityId(universityId);
+            if (!faculties.isEmpty()) {
+                List<Integer> facultyIds = new ArrayList<>();
+                for (Faculty faculty : faculties) {
+                    faculty.setActive(b);
+                    facultyIds.add(faculty.getId());
+                }
+                boolean group = groupService.setActiveAll(b, facultyIds);
+                if (group) {
+                    facultyRepository.saveAll(faculties);
+                }
+                return group;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 }

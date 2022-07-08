@@ -37,4 +37,7 @@ public class Journal {
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Subject> subjects;
+
+    @Column(name = "is_active")
+    private boolean isActive;
 }

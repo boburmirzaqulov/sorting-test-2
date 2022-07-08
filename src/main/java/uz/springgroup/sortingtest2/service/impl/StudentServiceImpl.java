@@ -23,6 +23,7 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final SubjectRepository subjectRepository;
     private final StudentMapper studentMapper;
+    private final MarkServiceImpl markService;
     @Override
     public ResponseDto<List<SubjectSt>> subjectSt(Integer id) {
         // V A L I D A T I O N
@@ -52,5 +53,26 @@ public class StudentServiceImpl implements StudentService {
         studentInfo.setSubjects(subjectMap);
 
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, studentInfo);
+    }
+
+    @Override
+    public boolean setActiveAll(boolean b, List<Integer> groupIds) {
+        try {
+            List<Student> students = studentRepository.findAllByGroupIdIn(groupIds);
+            List<Integer> studentIds = new ArrayList<>();
+            for (Student student : students) {
+                student.setActive(b);
+                studentIds.add(student.getId());
+            }
+            boolean mark;
+            mark = markService.setActiveAll(b, studentIds);
+            if (mark){
+                studentRepository.saveAll(students);
+            }
+            return mark;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 }

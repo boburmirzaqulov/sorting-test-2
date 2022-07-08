@@ -24,4 +24,6 @@ public interface FacultyService {
     List<Faculty> updateWithUniversity(University university, List<Faculty> faculties);
 
     ResponseDto<List<?>> getAllGroupsById(Integer id);
+
+    boolean setActiveOne(boolean b, Integer universityId);
 }

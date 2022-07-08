@@ -31,4 +31,7 @@ public class Faculty {
 
     @OneToMany(mappedBy = "faculty")
     private List<Group> groups;
+
+    @Column(name = "is_active")
+    private boolean isActive;
 }
