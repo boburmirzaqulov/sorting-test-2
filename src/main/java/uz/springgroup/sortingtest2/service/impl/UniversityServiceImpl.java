@@ -144,9 +144,16 @@ public class UniversityServiceImpl implements UniversityService {
                 return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
             }
             University university = universityOptional.get();
-            for (Faculty faculty : university.getFaculties()) {
+            List<Integer> facultyIds = university.getFaculties().stream()
+                    .map(Faculty::getId)
+                    .collect(Collectors.toList());
+
+            List<Faculty> facultiesDB = facultyRepository.findAllByIdInAndIsActiveTrue(facultyIds);
+
+            for (Faculty faculty : facultiesDB) {
                 faculty.setGroups(null);
             }
+            university.setFaculties(facultiesDB);
             return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
         } catch (Exception e) {
             e.printStackTrace();
