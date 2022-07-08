@@ -21,7 +21,7 @@ public interface GroupService {
 
     ResponseDto<List<GroupSt>> getStudents(Integer id);
 
-    boolean setActiveAll(boolean b, List<Integer> facultyIds);
+    void setActiveAll(boolean b, List<Integer> facultyIds);
 
-    boolean setActiveOne(boolean b, Integer facultyId);
+    void setActiveOne(boolean b, Integer facultyId);
 }

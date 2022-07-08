@@ -11,5 +11,5 @@ public interface StudentService {
 
     ResponseDto<StudentInfo> findByName(String name);
 
-    boolean setActiveAll(boolean b, List<Integer> groupIds);
+    void setActiveAll(boolean b, List<Integer> groupIds);
 }

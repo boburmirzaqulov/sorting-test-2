@@ -8,6 +8,7 @@ import uz.springgroup.sortingtest2.dto.GroupDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.entity.Group;
 import uz.springgroup.sortingtest2.entity.GroupSt;
+import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.repository.GroupRepository;
@@ -57,7 +58,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public boolean setActiveAll(boolean b, List<Integer> facultyIds) {
+    public void setActiveAll(boolean b, List<Integer> facultyIds) {
         try {
             List<Group> groups = groupRepository.findAllByFacultyIdIn(facultyIds);
             List<Integer> groupIds = new ArrayList<>();
@@ -65,23 +66,18 @@ public class GroupServiceImpl implements GroupService {
                 group.setActive(b);
                 groupIds.add(group.getId());
             }
-            boolean student;
-            student = studentService.setActiveAll(b, groupIds);
-            if (student) {
-                boolean journal = journalService.setActiveAll(b, groupIds);
-                if (journal){
-                    groupRepository.saveAll(groups);
-                }
-                return journal;
-            }
-        } catch (Exception e){
+            studentService.setActiveAll(b, groupIds);
+            journalService.setActiveAll(b, groupIds);
+            groupRepository.saveAll(groups);
+
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
         }
-        return false;
     }
 
     @Override
-    public boolean setActiveOne(boolean b, Integer facultyId) {
-        return false;
+    public void setActiveOne(boolean b, Integer facultyId) {
+
     }
 }

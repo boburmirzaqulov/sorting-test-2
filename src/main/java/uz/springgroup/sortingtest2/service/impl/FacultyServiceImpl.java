@@ -49,7 +49,7 @@ public class FacultyServiceImpl implements FacultyService {
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.getAllGeneral(params, errors);
 
-        if(errors.isEmpty()){
+        if (errors.isEmpty()) {
             int page = StringHelper.getNumber(params.getFirst("page"));
             int size = StringHelper.getNumber(params.getFirst("size"));
             try {
@@ -64,7 +64,7 @@ public class FacultyServiceImpl implements FacultyService {
                 return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, result);
             } catch (Exception e) {
                 e.printStackTrace();
-                return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR,null);
+                return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
             }
         }
         return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, params, errors);
@@ -119,7 +119,7 @@ public class FacultyServiceImpl implements FacultyService {
         }
         try {
             facultyRepository.saveAll(faculties);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new DatabaseException(e.getMessage(), e);
         }
@@ -136,7 +136,7 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    public boolean setActiveOne(boolean b, Integer universityId) {
+    public void setActiveOne(boolean b, Integer universityId) {
         try {
             List<Faculty> faculties = facultyRepository.findAllByUniversityId(universityId);
             if (!faculties.isEmpty()) {
@@ -145,15 +145,12 @@ public class FacultyServiceImpl implements FacultyService {
                     faculty.setActive(b);
                     facultyIds.add(faculty.getId());
                 }
-                boolean group = groupService.setActiveAll(b, facultyIds);
-                if (group) {
-                    facultyRepository.saveAll(faculties);
-                }
-                return group;
+                groupService.setActiveAll(b, facultyIds);
+                facultyRepository.saveAll(faculties);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
         }
-        return false;
     }
 }

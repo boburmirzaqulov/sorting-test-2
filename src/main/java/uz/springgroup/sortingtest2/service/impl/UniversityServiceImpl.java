@@ -144,13 +144,14 @@ public class UniversityServiceImpl implements UniversityService {
             if (universityOptional.isPresent()) {
                 University university = universityOptional.get();
                 university.setActive(false);
-                boolean faculty = facultyService.setActiveOne(false, id);
-                if (faculty){
+                facultyService.setActiveOne(false, id);
+                try {
                     universityRepository.save(university);
-                    return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
-                } else {
-                    return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, id);
+                } catch (Exception e){
+                    e.printStackTrace();
+                    throw new DatabaseException(e.getMessage(), e);
                 }
+                return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
             }
         }
         return res;

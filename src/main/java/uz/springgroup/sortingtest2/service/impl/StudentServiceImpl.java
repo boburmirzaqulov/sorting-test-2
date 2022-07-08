@@ -7,6 +7,7 @@ import uz.springgroup.sortingtest2.dto.StudentInfo;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Student;
 import uz.springgroup.sortingtest2.entity.SubjectSt;
+import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.mapper.StudentMapper;
@@ -24,12 +25,14 @@ public class StudentServiceImpl implements StudentService {
     private final SubjectRepository subjectRepository;
     private final StudentMapper studentMapper;
     private final MarkServiceImpl markService;
+
     @Override
     public ResponseDto<List<SubjectSt>> subjectSt(Integer id) {
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(id, errors);
-        if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null);
+        if (!errors.isEmpty())
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null);
 
         List<SubjectSt> subjects = studentRepository.subjectSt(id);
 
@@ -56,7 +59,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public boolean setActiveAll(boolean b, List<Integer> groupIds) {
+    public void setActiveAll(boolean b, List<Integer> groupIds) {
         try {
             List<Student> students = studentRepository.findAllByGroupIdIn(groupIds);
             List<Integer> studentIds = new ArrayList<>();
@@ -64,15 +67,12 @@ public class StudentServiceImpl implements StudentService {
                 student.setActive(b);
                 studentIds.add(student.getId());
             }
-            boolean mark;
-            mark = markService.setActiveAll(b, studentIds);
-            if (mark){
-                studentRepository.saveAll(students);
-            }
-            return mark;
-        }catch (Exception e){
+            markService.setActiveAll(b, studentIds);
+            studentRepository.saveAll(students);
+
+        } catch (Exception e) {
             e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
         }
-        return false;
     }
 }

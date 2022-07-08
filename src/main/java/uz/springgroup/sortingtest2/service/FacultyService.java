@@ -25,5 +25,5 @@ public interface FacultyService {
 
     ResponseDto<List<?>> getAllGroupsById(Integer id);
 
-    boolean setActiveOne(boolean b, Integer universityId);
+    void setActiveOne(boolean b, Integer universityId);
 }
