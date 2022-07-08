@@ -16,15 +16,17 @@ public class MarkServiceImpl implements MarkService {
 
     @Override
     public void setActiveAll(boolean b, List<Integer> studentIds) {
-        try {
-            List<Mark> marks = markRepository.findAllByStudentIdIn(studentIds);
-            for (Mark mark : marks) {
-                mark.setActive(b);
+        if (!studentIds.isEmpty()) {
+            try {
+                List<Mark> marks = markRepository.findAllByStudentIdIn(studentIds);
+                for (Mark mark : marks) {
+                    mark.setActive(b);
+                }
+                markRepository.saveAll(marks);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage(), e);
             }
-            markRepository.saveAll(marks);
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
         }
     }
 }

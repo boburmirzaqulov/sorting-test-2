@@ -198,20 +198,22 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public void setActiveAll(boolean b, List<Integer> universityIds) {
-        try {
-            List<Faculty> faculties = facultyRepository.findAllByUniversityIdIn(universityIds);
-            if (!faculties.isEmpty()) {
-                List<Integer> facultyIds = new ArrayList<>();
-                for (Faculty faculty : faculties) {
-                    faculty.setActive(b);
-                    facultyIds.add(faculty.getId());
+        if (!universityIds.isEmpty()) {
+            try {
+                List<Faculty> faculties = facultyRepository.findAllByUniversityIdIn(universityIds);
+                if (!faculties.isEmpty()) {
+                    List<Integer> facultyIds = new ArrayList<>();
+                    for (Faculty faculty : faculties) {
+                        faculty.setActive(b);
+                        facultyIds.add(faculty.getId());
+                    }
+                    groupService.setActiveAll(b, facultyIds);
+                    facultyRepository.saveAll(faculties);
                 }
-                groupService.setActiveAll(b, facultyIds);
-                facultyRepository.saveAll(faculties);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage(), e);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
         }
     }
 }

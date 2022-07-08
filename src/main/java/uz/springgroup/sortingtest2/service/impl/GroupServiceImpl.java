@@ -80,39 +80,45 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void setActiveAll(boolean b, List<Integer> facultyIds) {
-        try {
-            List<Group> groups = groupRepository.findAllByFacultyIdIn(facultyIds);
-            setActive(b, groups);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
+        if (!facultyIds.isEmpty()) {
+            try {
+                List<Group> groups = groupRepository.findAllByFacultyIdIn(facultyIds);
+                setActive(b, groups);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage(), e);
+            }
         }
     }
 
     @Override
     public void setActiveOne(boolean b, Integer facultyId) {
-        try {
-            List<Group> groups = groupRepository.findAllByFacultyId(facultyId);
-            setActive(b, groups);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
+        if (facultyId != null) {
+            try {
+                List<Group> groups = groupRepository.findAllByFacultyId(facultyId);
+                setActive(b, groups);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage(), e);
+            }
         }
     }
 
     private void setActive(boolean b, List<Group> groups) {
-        try {
-            List<Integer> groupIds = new ArrayList<>();
-            for (Group group : groups) {
-                group.setActive(b);
-                groupIds.add(group.getId());
+        if (!groups.isEmpty()) {
+            try {
+                List<Integer> groupIds = new ArrayList<>();
+                for (Group group : groups) {
+                    group.setActive(b);
+                    groupIds.add(group.getId());
+                }
+                studentService.setActiveAll(b, groupIds);
+                journalService.setActiveAll(b, groupIds);
+                groupRepository.saveAll(groups);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage(), e);
             }
-            studentService.setActiveAll(b, groupIds);
-            journalService.setActiveAll(b, groupIds);
-            groupRepository.saveAll(groups);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
         }
     }
 }

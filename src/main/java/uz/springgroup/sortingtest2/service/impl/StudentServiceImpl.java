@@ -60,19 +60,21 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void setActiveAll(boolean b, List<Integer> groupIds) {
-        try {
-            List<Student> students = studentRepository.findAllByGroupIdIn(groupIds);
-            List<Integer> studentIds = new ArrayList<>();
-            for (Student student : students) {
-                student.setActive(b);
-                studentIds.add(student.getId());
-            }
-            markService.setActiveAll(b, studentIds);
-            studentRepository.saveAll(students);
+        if (!groupIds.isEmpty()) {
+            try {
+                List<Student> students = studentRepository.findAllByGroupIdIn(groupIds);
+                List<Integer> studentIds = new ArrayList<>();
+                for (Student student : students) {
+                    student.setActive(b);
+                    studentIds.add(student.getId());
+                }
+                markService.setActiveAll(b, studentIds);
+                studentRepository.saveAll(students);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage(), e);
+            }
         }
     }
 }
