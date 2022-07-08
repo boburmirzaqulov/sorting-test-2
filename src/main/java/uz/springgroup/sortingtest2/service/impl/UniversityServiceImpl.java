@@ -26,6 +26,7 @@ import uz.springgroup.sortingtest2.service.UniversityService;
 import uz.springgroup.sortingtest2.service.ValidationService;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,8 +93,9 @@ public class UniversityServiceImpl implements UniversityService {
         }
 
         // S A V E    F A C U L T I E S
-        university.setFaculties(facultyService.updateWithUniversity(university, facultiesDtos));
-
+        List<Faculty> faculties = facultyService.updateWithUniversity(university, facultiesDtos);
+        faculties.sort(Comparator.comparingInt(Faculty::getId));
+        university.setFaculties(faculties);
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
     }
 
@@ -113,7 +115,9 @@ public class UniversityServiceImpl implements UniversityService {
 
                 List<UniversityDto> universityDtoList = universityPage.get()
                         .map(e -> {
-                            for (Faculty faculty : e.getFaculties()) {
+                            List<Faculty> faculties = e.getFaculties();
+                            faculties.sort(Comparator.comparingInt(Faculty::getId));
+                            for (Faculty faculty : faculties) {
                                 faculty.setGroups(null);
                             }
                             return universityMapper.toDto(e);
@@ -153,6 +157,7 @@ public class UniversityServiceImpl implements UniversityService {
             for (Faculty faculty : facultiesDB) {
                 faculty.setGroups(null);
             }
+            facultiesDB.sort(Comparator.comparingInt(Faculty::getId));
             university.setFaculties(facultiesDB);
             return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
         } catch (Exception e) {
@@ -208,7 +213,9 @@ public class UniversityServiceImpl implements UniversityService {
 
         // U P D A T I N G   F A C U L T I E S
         if (!facultiesDtos.isEmpty()) {
-            university.setFaculties(facultyService.updateWithUniversity(university, facultiesDtos));
+            List<Faculty> faculties = facultyService.updateWithUniversity(university, facultiesDtos);
+            faculties.sort(Comparator.comparingInt(Faculty::getId));
+            university.setFaculties(faculties);
         }
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
     }
@@ -254,6 +261,7 @@ public class UniversityServiceImpl implements UniversityService {
                 List<University> universities = new ArrayList<>();
                 universities.add(universityOptional.get());
                 setActive(true, universities);
+                universities.get(0).getFaculties().sort(Comparator.comparingInt(Faculty::getId));
                 return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(universities.get(0)));
             }
             return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
