@@ -72,7 +72,7 @@ public class UniversityServiceImpl implements UniversityService {
             int size = StringHelper.getNumber(params.getFirst("size"));
             try {
                 PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
-                Page<University> universityPage = universityRepository.findAll(pageRequest);
+                Page<University> universityPage = universityRepository.findAllByIsActiveTrue(pageRequest);
 
                 List<UniversityDto> universityDtoList = universityPage.get()
                         .map(e -> {

@@ -1,10 +1,13 @@
 package uz.springgroup.sortingtest2.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.entity.GroupSt;
+import uz.springgroup.sortingtest2.entity.University;
 
 import java.util.List;
 
@@ -14,4 +17,6 @@ public interface FacultyRepository extends JpaRepository<Faculty, Integer> {
     List<GroupSt> groupSt(Integer id);
 
     List<Faculty> findAllByUniversityIdIn(List<Integer> universityIds);
+
+    Page<Faculty> findAllByIsActiveTrue(Pageable pageable);
 }
