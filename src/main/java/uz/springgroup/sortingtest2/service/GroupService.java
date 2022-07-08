@@ -4,6 +4,7 @@ import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.GroupDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
+import uz.springgroup.sortingtest2.entity.Group;
 import uz.springgroup.sortingtest2.entity.GroupSt;
 
 import java.util.List;

@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
-import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
@@ -142,18 +141,27 @@ public class UniversityServiceImpl implements UniversityService {
         if (res == null){
             Optional<University> universityOptional = universityRepository.findById(id);
             if (universityOptional.isPresent()) {
-                University university = universityOptional.get();
-                university.setActive(false);
-                facultyService.setActiveOne(false, id);
-                try {
-                    universityRepository.save(university);
-                } catch (Exception e){
-                    e.printStackTrace();
-                    throw new DatabaseException(e.getMessage(), e);
-                }
+                List<University> universities = new ArrayList<>();
+                universities.add(universityOptional.get());
+                setActive(false, universities);
                 return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
             }
         }
         return res;
+    }
+
+    private void setActive(boolean b, List<University> universities){
+        List<Integer> universityIds = new ArrayList<>();
+        for (University university : universities) {
+            university.setActive(b);
+            universityIds.add(university.getId());
+        }
+        facultyService.setActiveAll(b, universityIds);
+        try {
+            universityRepository.saveAll(universities);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
+        }
     }
 }

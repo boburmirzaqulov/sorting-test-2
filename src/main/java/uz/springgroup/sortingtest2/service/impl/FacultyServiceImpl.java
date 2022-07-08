@@ -102,7 +102,24 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public ResponseDto<Integer> delete(Integer id) {
         // W I T H   V A L I D A T I O N
-        return GeneralService.deleteGeneral(facultyRepository, id);
+        ResponseDto<Integer> res = GeneralService.deleteGeneral(facultyRepository, id);
+
+        if (res == null){
+            Optional<Faculty> facultyOptional = facultyRepository.findById(id);
+            if (facultyOptional.isPresent()) {
+                Faculty faculty = facultyOptional.get();
+                faculty.setActive(false);
+                groupService.setActiveOne(false, id);
+                try {
+                    facultyRepository.save(faculty);
+                } catch (Exception e){
+                    e.printStackTrace();
+                    throw new DatabaseException(e.getMessage(), e);
+                }
+                return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
+            }
+        }
+        return res;
     }
 
     @Override
@@ -136,9 +153,9 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    public void setActiveOne(boolean b, Integer universityId) {
+    public void setActiveAll(boolean b, List<Integer> universityIds) {
         try {
-            List<Faculty> faculties = facultyRepository.findAllByUniversityId(universityId);
+            List<Faculty> faculties = facultyRepository.findAllByUniversityIdIn(universityIds);
             if (!faculties.isEmpty()) {
                 List<Integer> facultyIds = new ArrayList<>();
                 for (Faculty faculty : faculties) {
