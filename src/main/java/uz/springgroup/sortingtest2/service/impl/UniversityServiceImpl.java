@@ -6,12 +6,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.entity.University;
+import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.helper.StringHelper;
@@ -108,6 +110,7 @@ public class UniversityServiceImpl implements UniversityService {
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
     }
 
+    @Transactional
     @Override
     public ResponseDto<?> update(UniversityDto universityDto) {
         // W I T H   V A L I D A T I O N
@@ -120,17 +123,15 @@ public class UniversityServiceImpl implements UniversityService {
 
             universityDto.setFaculties(null);
             University university = universityMapper.toEntity(universityDto);
-            universityRepository.save(university);
-
-            faculties = facultyService.updateWithUniversity(university, faculties);
-            if (faculties == null){
-                return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
+            try {
+                universityRepository.save(university);
+            } catch (Exception e){
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage(), e);
             }
-
-            university.setFaculties(faculties);
+            university.setFaculties(facultyService.updateWithUniversity(university, faculties));
             return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
         }
-
         return responseDto;
     }
 

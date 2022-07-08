@@ -7,7 +7,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
+import uz.springgroup.sortingtest2.helper.AppCode;
+import uz.springgroup.sortingtest2.helper.AppMessages;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,5 +35,10 @@ public class ExceptionHandlerResource{
     public ResponseEntity<List<ValidatorDto>> handleValidationCustomException(ValidationCustomException e){
         ValidationMessage validationMessage = new Gson().fromJson(e.getMessage(),ValidationMessage.class);
         return ResponseEntity.status(400).body(validationMessage.getData());
+    }
+
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<ValidatorDto> handleDatabaseException(DatabaseException e){
+        return ResponseEntity.status(400).body(new ValidatorDto(AppMessages.DATABASE_ERROR, e.getMessage()));
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
@@ -13,6 +14,7 @@ import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.entity.GroupSt;
 import uz.springgroup.sortingtest2.entity.University;
+import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.helper.StringHelper;
@@ -109,19 +111,20 @@ public class FacultyServiceImpl implements FacultyService {
         return updateWithUniversity(university, faculties);
     }
 
+    @Transactional
     @Override
     public List<Faculty> updateWithUniversity(University university, List<Faculty> faculties) {
+        for (Faculty faculty : faculties) {
+            faculty.setUniversity(university);
+        }
         try {
-            for (int i = 0; i < faculties.size(); i++) {
-                faculties.get(i).setUniversity(university);
-            }
             facultyRepository.saveAll(faculties);
-            for (int i = 0; i < faculties.size(); i++) {
-                faculties.get(i).setUniversity(null);
-            }
         } catch (Exception e){
             e.printStackTrace();
-            faculties = null;
+            throw new DatabaseException(e.getMessage(), e);
+        }
+        for (Faculty faculty : faculties) {
+            faculty.setUniversity(null);
         }
         return faculties;
     }
