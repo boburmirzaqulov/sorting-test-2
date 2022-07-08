@@ -59,7 +59,7 @@ public class GroupServiceImpl implements GroupService {
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
 
         try {

@@ -140,7 +140,7 @@ public class UniversityServiceImpl implements UniversityService {
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
         try {
             Optional<University> universityOptional = universityRepository.findByIdAndIsActiveTrue(id);
@@ -172,6 +172,8 @@ public class UniversityServiceImpl implements UniversityService {
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(universityDto.getId(), errors);
+        if (!errors.isEmpty())
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null);
 
         List<Faculty> facultiesDtos = new ArrayList<>();
         try {
@@ -228,7 +230,7 @@ public class UniversityServiceImpl implements UniversityService {
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
 
         try {
@@ -253,7 +255,7 @@ public class UniversityServiceImpl implements UniversityService {
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
         try {
             Optional<University> universityOptional = universityRepository.findByIdAndIsActiveFalse(id);

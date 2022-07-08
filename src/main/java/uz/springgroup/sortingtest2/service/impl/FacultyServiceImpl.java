@@ -126,7 +126,7 @@ public class FacultyServiceImpl implements FacultyService {
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
         Optional<Faculty> facultyOptional = facultyRepository.findByIdAndIsActiveTrue(id);
         if (facultyOptional.isEmpty()) {
@@ -142,7 +142,7 @@ public class FacultyServiceImpl implements FacultyService {
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(facultyDto.getId(), errors);
         if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
 
         try {
@@ -169,7 +169,7 @@ public class FacultyServiceImpl implements FacultyService {
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
-            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
 
         try {
