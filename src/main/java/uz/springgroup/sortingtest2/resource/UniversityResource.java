@@ -20,6 +20,11 @@ public class UniversityResource {
         return universityService.save(universityDto);
     }
 
+    @PostMapping("/{id}/recovery")
+    public ResponseDto<UniversityDto> recoveryById(@PathVariable Integer id){
+        return universityService.recoveryById(id);
+    }
+
     @GetMapping
     public ResponseDto<?> getAll(@RequestParam MultiValueMap<String, String> params){
         return universityService.getAll(params);

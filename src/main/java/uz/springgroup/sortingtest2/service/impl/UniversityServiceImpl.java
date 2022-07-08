@@ -164,6 +164,29 @@ public class UniversityServiceImpl implements UniversityService {
         return res;
     }
 
+    @Override
+    public ResponseDto<UniversityDto> recoveryById(Integer id) {
+        // V A L I D A T I O N
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.idValid(id, errors);
+        if (!errors.isEmpty()) {
+            new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
+        }
+        try {
+            Optional<University> universityOptional = universityRepository.findById(id);
+            if (universityOptional.isPresent()) {
+                List<University> universities = new ArrayList<>();
+                universities.add(universityOptional.get());
+                setActive(true, universities);
+                return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(universities.get(0)));
+            }
+            return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
+        }
+    }
+
     private void setActive(boolean b, List<University> universities){
         List<Integer> universityIds = new ArrayList<>();
         for (University university : universities) {

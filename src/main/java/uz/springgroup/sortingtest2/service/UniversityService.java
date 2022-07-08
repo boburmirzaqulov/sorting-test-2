@@ -15,4 +15,6 @@ public interface UniversityService {
     ResponseDto<?> update(UniversityDto universityDto);
 
     ResponseDto<Integer> delete(Integer id);
+
+    ResponseDto<UniversityDto> recoveryById(Integer id);
 }
