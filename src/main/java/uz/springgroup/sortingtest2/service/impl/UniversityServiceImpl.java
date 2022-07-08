@@ -7,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
-import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
@@ -59,12 +58,11 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public ResponseDto<?> getAll(MultiValueMap<String, String> params) {
         List<ValidatorDto> errors = new ArrayList<>();
-        boolean isPage = false, isSize=false;
 
         // V A L I D A T I O N
-        ValidationService.getAllGeneral(params, isPage, isSize, errors);
+        ValidationService.getAllGeneral(params, errors);
 
-        if(isPage && isSize){
+        if(errors.isEmpty()){
             int page = StringHelper.getNumber(params.getFirst("page"));
             int size = StringHelper.getNumber(params.getFirst("size"));
             try {
@@ -73,7 +71,12 @@ public class UniversityServiceImpl implements UniversityService {
 
                 List<UniversityDto> universityDtoList = universityRepository.findAll()
                         .stream()
-                        .map(universityMapper::toDto)
+                        .map(e -> {
+                            for (Faculty faculty : e.getFaculties()) {
+                                faculty.setGroups(null);
+                            }
+                            return universityMapper.toDto(e);
+                        })
                         .collect(Collectors.toList());
                 Page<UniversityDto> result = new PageImpl<>(universityDtoList, universityPage.getPageable(), universityPage.getTotalPages());
                 return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, result);
@@ -89,7 +92,7 @@ public class UniversityServiceImpl implements UniversityService {
     public ResponseDto<UniversityDto> getById(Integer id) {
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.universityValid(id, errors);
+        ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
@@ -99,6 +102,9 @@ public class UniversityServiceImpl implements UniversityService {
             return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
         }
         University university = universityOptional.get();
+        for (Faculty faculty : university.getFaculties()) {
+            faculty.setGroups(null);
+        }
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
     }
 

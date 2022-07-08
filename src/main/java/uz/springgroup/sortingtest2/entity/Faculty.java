@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.List;
@@ -24,6 +26,7 @@ public class Faculty {
 
     @ManyToOne
     @JoinColumn(name = "university_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private University university;
 
     @OneToMany(mappedBy = "faculty")

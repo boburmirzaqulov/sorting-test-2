@@ -3,7 +3,6 @@ package uz.springgroup.sortingtest2.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
-import uz.springgroup.sortingtest2.dto.StudentDto;
 import uz.springgroup.sortingtest2.dto.StudentInfo;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Student;
@@ -17,7 +16,6 @@ import uz.springgroup.sortingtest2.service.StudentService;
 import uz.springgroup.sortingtest2.service.ValidationService;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class StudentServiceImpl implements StudentService {
     public ResponseDto<List<SubjectSt>> subjectSt(Integer id) {
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.universityValid(id, errors);
+        ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null);
 
         List<SubjectSt> subjects = studentRepository.subjectSt(id);

@@ -1,7 +1,5 @@
 package uz.springgroup.sortingtest2.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 public class ValidationService {
 
-    public static void universityValid(Integer id, List<ValidatorDto> errors){
+    public static void idValid(Integer id, List<ValidatorDto> errors){
         if (id == null) {
             errors.add(new ValidatorDto("id", AppMessages.EMPTY_FIELD));
             return;
@@ -27,11 +25,11 @@ public class ValidationService {
         if (id < 0) errors.add(new ValidatorDto("id", AppMessages.INCORRECT_TYPE));
     }
 
-    public static void getAllGeneral(MultiValueMap<String, String> params, boolean isPage, boolean isSize, List<ValidatorDto> errors){
-        isPage = StringHelper.isNumber(params.getFirst("page"));
-        isSize = StringHelper.isNumber(params.getFirst("size"));
-        if (isPage) errors.add(new ValidatorDto("page", AppMessages.NOT_FOUND));
-        if (isSize) errors.add(new ValidatorDto("size", AppMessages.NOT_FOUND));
+    public static void getAllGeneral(MultiValueMap<String, String> params, List<ValidatorDto> errors){
+        boolean isPage = StringHelper.isNumber(params.getFirst("page"));
+        boolean isSize = StringHelper.isNumber(params.getFirst("size"));
+        if (!isPage) errors.add(new ValidatorDto("page", AppMessages.NOT_FOUND));
+        if (!isSize) errors.add(new ValidatorDto("size", AppMessages.NOT_FOUND));
     }
 
     public static void validationFaculty(UniversityDto universityDto, List<ValidatorDto> errors, FacultyRepository facultyRepository, FacultyMapper facultyMapper) {

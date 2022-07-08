@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -22,10 +24,12 @@ public class Mark {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Student student;
 
     @ManyToOne
     @JoinColumn(name = "subject_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Subject subject;
 
     private Integer mark;

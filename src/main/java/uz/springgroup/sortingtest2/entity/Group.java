@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -27,6 +29,7 @@ public class Group {
 
     @ManyToOne
     @JoinColumn(name = "faculty_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Faculty faculty;
 
     @OneToMany(mappedBy = "group")
@@ -40,6 +43,7 @@ public class Group {
             name = "group_subject",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Subject> subjects;
 
 }

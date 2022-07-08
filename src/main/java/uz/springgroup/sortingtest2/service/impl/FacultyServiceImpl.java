@@ -44,10 +44,9 @@ public class FacultyServiceImpl implements FacultyService {
     public ResponseDto<?> getAll(MultiValueMap<String, String> params) {
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
-        boolean isPage = false, isSize=false;
-        ValidationService.getAllGeneral(params, isPage, isSize, errors);
+        ValidationService.getAllGeneral(params, errors);
 
-        if(isPage && isSize){
+        if(errors.isEmpty()){
             int page = StringHelper.getNumber(params.getFirst("page"));
             int size = StringHelper.getNumber(params.getFirst("size"));
             try {
@@ -71,7 +70,7 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public ResponseDto<FacultyDto> getById(Integer id) {
         List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.universityValid(id, errors);
+        ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }

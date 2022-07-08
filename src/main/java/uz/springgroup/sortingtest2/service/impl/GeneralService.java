@@ -2,12 +2,10 @@ package uz.springgroup.sortingtest2.service.impl;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
-import uz.springgroup.sortingtest2.helper.StringHelper;
 import uz.springgroup.sortingtest2.service.ValidationService;
 
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ public class GeneralService {
     public static ResponseDto<Integer> deleteGeneral(JpaRepository repository, Integer id){
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.universityValid(id, errors);
+        ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
@@ -27,15 +25,19 @@ public class GeneralService {
         if (!repository.existsById(id)){
             new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
         }
-
-        repository.deleteById(id);
+        try {
+            repository.deleteById(id);
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
+        }
         return new ResponseDto<>(true, AppCode.OK, AppMessages.DELETED, id);
     }
 
     public static ResponseDto<?> updateGeneral(JpaRepository repository, Integer id){
         // V A L I D A T I O N
         List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.universityValid(id, errors);
+        ValidationService.idValid(id, errors);
         if (!errors.isEmpty()) {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
