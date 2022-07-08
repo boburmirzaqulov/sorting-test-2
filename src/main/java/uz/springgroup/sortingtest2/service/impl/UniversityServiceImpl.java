@@ -47,7 +47,12 @@ public class UniversityServiceImpl implements UniversityService {
 
         universityDto.setId(null);
         University university = universityMapper.toEntity(universityDto);
-        universityRepository.save(university);
+        try {
+            universityRepository.save(university);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
+        }
 
         // S A V E    F A C U L T I E S
         university.setFaculties(facultyService.saveAll(university, universityDto.getFaculties()));
@@ -96,16 +101,20 @@ public class UniversityServiceImpl implements UniversityService {
         if (!errors.isEmpty()) {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
-
-        Optional<University> universityOptional = universityRepository.findById(id);
-        if (universityOptional.isEmpty()) {
-            return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        try {
+            Optional<University> universityOptional = universityRepository.findById(id);
+            if (universityOptional.isEmpty()) {
+                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+            }
+            University university = universityOptional.get();
+            for (Faculty faculty : university.getFaculties()) {
+                faculty.setGroups(null);
+            }
+            return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
         }
-        University university = universityOptional.get();
-        for (Faculty faculty : university.getFaculties()) {
-            faculty.setGroups(null);
-        }
-        return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
     }
 
     @Transactional
@@ -139,12 +148,17 @@ public class UniversityServiceImpl implements UniversityService {
         ResponseDto<Integer> res = GeneralService.deleteGeneral(universityRepository, id);
 
         if (res == null){
-            Optional<University> universityOptional = universityRepository.findById(id);
-            if (universityOptional.isPresent()) {
-                List<University> universities = new ArrayList<>();
-                universities.add(universityOptional.get());
-                setActive(false, universities);
-                return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
+            try {
+                Optional<University> universityOptional = universityRepository.findById(id);
+                if (universityOptional.isPresent()) {
+                    List<University> universities = new ArrayList<>();
+                    universities.add(universityOptional.get());
+                    setActive(false, universities);
+                    return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, id);
+                }
+            } catch (Exception e){
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage(), e);
             }
         }
         return res;

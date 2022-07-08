@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
+import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.service.ValidationService;
@@ -27,7 +28,7 @@ public class GeneralService {
             existsById = repository.existsById(id);
         } catch (Exception e){
             e.printStackTrace();
-            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
+            throw new DatabaseException(e.getMessage(), e);
         }
 
         if (!existsById){
@@ -54,9 +55,13 @@ public class GeneralService {
             new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         }
 
-
-        if (!repository.existsById(id)){
-            return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, id);
+        try {
+            if (!repository.existsById(id)) {
+                return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, id);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new DatabaseException(e.getMessage(), e);
         }
         return null;
     }
