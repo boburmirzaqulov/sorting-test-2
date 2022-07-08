@@ -3,15 +3,21 @@ package uz.springgroup.sortingtest2.service;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
+import uz.springgroup.sortingtest2.dto.GroupDto;
 import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
+import uz.springgroup.sortingtest2.entity.Group;
+import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.helper.StringHelper;
 import uz.springgroup.sortingtest2.mapper.FacultyMapper;
 import uz.springgroup.sortingtest2.repository.FacultyRepository;
+import uz.springgroup.sortingtest2.repository.GroupRepository;
+import uz.springgroup.sortingtest2.repository.UniversityRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,4 +81,46 @@ public class ValidationService {
         }
     }
 
+    public static void validationFacultyDtoForSave(FacultyDto facultyDto, List<ValidatorDto> errors, UniversityRepository universityRepository, GroupRepository groupRepository) {
+        UniversityDto universityDto = facultyDto.getUniversity();
+        if (universityDto != null){
+            if (universityDto.getId() != null){
+                boolean uR;
+                try {
+                    uR = universityRepository.existsById(facultyDto.getUniversity().getId());
+                } catch (Exception e){
+                    e.printStackTrace();
+                    throw new DatabaseException(e.getMessage(), e);
+                }
+                if (!uR) errors.add(new ValidatorDto("University ID", AppMessages.NOT_FOUND));
+            }
+        }
+
+        List<GroupDto> groups = facultyDto.getGroups();
+        if (groups != null){
+            if (!groups.isEmpty()){
+                List<Integer> groupIds = groups.stream()
+                        .map(GroupDto::getId)
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList());
+                List<Integer> groupIdsDB;
+                try {
+                    groupIdsDB = groupRepository.findAllByIdIn(groupIds).stream()
+                            .map(Group::getId)
+                            .distinct()
+                            .collect(Collectors.toList());
+                } catch (Exception e){
+                    e.printStackTrace();
+                    throw new DatabaseException(e.getMessage(), e);
+                }
+                if (groupIds.size() != groupIdsDB.size()){
+                    groupIds.removeAll(groupIdsDB);
+                    errors.add(
+                            new ValidatorDto(String.format("Group Ids %s ", groupIds.toArray()), AppMessages.NOT_FOUND)
+                    );
+                }
+            }
+        }
+    }
 }

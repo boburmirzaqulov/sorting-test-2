@@ -11,6 +11,7 @@ import uz.springgroup.sortingtest2.entity.GroupSt;
 import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
+import uz.springgroup.sortingtest2.mapper.GroupMapper;
 import uz.springgroup.sortingtest2.repository.GroupRepository;
 import uz.springgroup.sortingtest2.service.GroupService;
 
@@ -24,11 +25,13 @@ public class GroupServiceImpl implements GroupService {
     private final GroupRepository groupRepository;
     private final StudentServiceImpl studentService;
     private final JournalServiceImpl journalService;
-    private final SubjectServiceImpl subjectService;
+    private final GroupMapper groupMapper;
+
 
 
     @Override
     public ResponseDto<GroupDto> save(GroupDto groupDto) {
+
         return null;
     }
 

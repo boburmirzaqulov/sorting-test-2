@@ -12,6 +12,7 @@ import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Faculty;
+import uz.springgroup.sortingtest2.entity.Group;
 import uz.springgroup.sortingtest2.entity.GroupSt;
 import uz.springgroup.sortingtest2.entity.University;
 import uz.springgroup.sortingtest2.exception.DatabaseException;
@@ -20,6 +21,8 @@ import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.helper.StringHelper;
 import uz.springgroup.sortingtest2.mapper.FacultyMapper;
 import uz.springgroup.sortingtest2.repository.FacultyRepository;
+import uz.springgroup.sortingtest2.repository.GroupRepository;
+import uz.springgroup.sortingtest2.repository.UniversityRepository;
 import uz.springgroup.sortingtest2.service.FacultyService;
 import uz.springgroup.sortingtest2.service.ValidationService;
 
@@ -32,20 +35,57 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FacultyServiceImpl implements FacultyService {
     private final FacultyRepository facultyRepository;
+    private final UniversityRepository universityRepository;
+    private final GroupRepository groupRepository;
     private final FacultyMapper facultyMapper;
     private final GroupServiceImpl groupService;
 
     @Override
     public ResponseDto<FacultyDto> save(FacultyDto facultyDto) {
+        /**
+         * V A L I D A T I O N
+         */
+        List<ValidatorDto> errors = new ArrayList<>();
+        ValidationService.validationFacultyDtoForSave(facultyDto, errors, universityRepository, groupRepository);
+        if (!errors.isEmpty())
+            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, facultyDto, errors);
+
+        /**
+         * S A V I N G
+         */
         facultyDto.setId(null);
         Faculty faculty = facultyMapper.toEntity(facultyDto);
+        University university = faculty.getUniversity();
+        if (university != null) {
+            if (university.getId() == null) {
+                try {
+                    universityRepository.save(university);
+                    faculty.setUniversity(university);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new DatabaseException(e.getMessage(), e);
+                }
+            }
+        }
         facultyRepository.save(faculty);
+        List<Group> groups = faculty.getGroups();
+        for (Group group : groups) {
+            group.setFaculty(faculty);
+        }
+        groupRepository.saveAll(groups);
+        for (Group group : groups) {
+            group.setFaculty(null);
+        }
+        faculty.setGroups(groups);
+
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, facultyMapper.toDto(faculty));
     }
 
     @Override
     public ResponseDto<?> getAll(MultiValueMap<String, String> params) {
-        // V A L I D A T I O N
+        /**
+         * V A L I D A T I O N
+         */
         List<ValidatorDto> errors = new ArrayList<>();
         ValidationService.getAllGeneral(params, errors);
 
@@ -101,10 +141,12 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public ResponseDto<Integer> delete(Integer id) {
-        // W I T H   V A L I D A T I O N
+        /**
+         * W I T H   V A L I D A T I O N
+         */
         ResponseDto<Integer> res = GeneralService.deleteGeneral(facultyRepository, id);
 
-        if (res == null){
+        if (res == null) {
             Optional<Faculty> facultyOptional = facultyRepository.findById(id);
             if (facultyOptional.isPresent()) {
                 Faculty faculty = facultyOptional.get();
@@ -112,7 +154,7 @@ public class FacultyServiceImpl implements FacultyService {
                 groupService.setActiveOne(false, id);
                 try {
                     facultyRepository.save(faculty);
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                     throw new DatabaseException(e.getMessage(), e);
                 }
