@@ -1,16 +1,14 @@
 package uz.springgroup.sortingtest2.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
-import uz.springgroup.sortingtest2.dto.FacultyDto;
-import uz.springgroup.sortingtest2.dto.GroupDto;
-import uz.springgroup.sortingtest2.dto.UniversityDto;
-import uz.springgroup.sortingtest2.dto.ValidatorDto;
-import uz.springgroup.sortingtest2.entity.Group;
+import uz.springgroup.sortingtest2.dto.*;
+import uz.springgroup.sortingtest2.entity.*;
 import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.helper.StringHelper;
-import uz.springgroup.sortingtest2.mapper.FacultyMapper;
+import uz.springgroup.sortingtest2.mapper.*;
 import uz.springgroup.sortingtest2.repository.FacultyRepository;
 import uz.springgroup.sortingtest2.repository.GroupRepository;
 import uz.springgroup.sortingtest2.repository.UniversityRepository;
@@ -38,25 +36,71 @@ public class ValidationService {
         if (!isSize) errors.add(new ValidatorDto("size", AppMessages.NOT_FOUND));
     }
 
-    public static void validationFaculty(UniversityDto universityDto, List<ValidatorDto> errors) {
-        if (universityDto.getFaculties() != null) {
-            List<FacultyDto> facultyDtos = new ArrayList<>();
-            for (int i = 0; i < universityDto.getFaculties().size(); i++) {
-                FacultyDto facultyDto = universityDto.getFaculties().get(i);
-                if (facultyDto.getId() != null) {
-                    facultyDtos.add(facultyDto);
-                }
+    public List<ValidatorDto> validationFaculty(FacultyDto facultyDto) {
+        return validationFaculty(FacultyMapper.INSTANCE.toEntity(facultyDto));
+    }
 
-                UniversityDto universityDto1 = facultyDto.getUniversity();
-                if (universityDto1 != null) {
-                    if (universityDto1.getId() != null) {
-                        errors.add(new ValidatorDto(
-                                "Faculty with University ID = " + facultyDto.getUniversity().getId(),
-                                AppMessages.INCORRECT_TYPE));
-                    }
-                }
-            }
-        }
+    public static List<ValidatorDto> validationFaculty(Faculty faculty) {
+        List<ValidatorDto> errors = new ArrayList<>();
+        if (faculty.getName() == null) errors.add(new ValidatorDto("Faculty name", AppMessages.EMPTY_FIELD));
+        return errors;
+    }
+
+    public static List<ValidatorDto> validationGroup(GroupDto groupDto) {
+        return validationGroup(GroupMapper.INSTANCE.toEntity(groupDto));
+    }
+
+    public static List<ValidatorDto> validationGroup(Group group) {
+        List<ValidatorDto> errors = new ArrayList<>();
+        if (group.getName() == null) errors.add(new ValidatorDto("Group name", AppMessages.EMPTY_FIELD));
+        if (group.getYear() == null) errors.add(new ValidatorDto("Group year", AppMessages.EMPTY_FIELD));
+        if (group.getFaculty() == null) errors.add(new ValidatorDto("Group faculty", AppMessages.EMPTY_FIELD));
+        return errors;
+    }
+
+    public static List<ValidatorDto> validationStudent(StudentDto studentDto) {
+        return validationStudent(StudentMapper.INSTANCE.toEntity(studentDto));
+    }
+
+    public static List<ValidatorDto> validationStudent(Student student) {
+        List<ValidatorDto> errors = new ArrayList<>();
+        if (student.getName() == null) errors.add(new ValidatorDto("Student name", AppMessages.EMPTY_FIELD));
+        if (student.getGroup() == null) errors.add(new ValidatorDto("Student group", AppMessages.EMPTY_FIELD));
+        return errors;
+    }
+
+    public static List<ValidatorDto> validationMark(MarkDto markDto) {
+        return validationMark(MarkMapper.INSTANCE.toEntity(markDto));
+    }
+
+    public static List<ValidatorDto> validationMark(Mark mark) {
+        List<ValidatorDto> errors = new ArrayList<>();
+        if (mark.getStudent() == null) errors.add(new ValidatorDto("Mark student", AppMessages.EMPTY_FIELD));
+        if (mark.getSubject() == null) errors.add(new ValidatorDto("Mark subject", AppMessages.EMPTY_FIELD));
+        if (mark.getMark() == null) errors.add(new ValidatorDto("Mark mark", AppMessages.EMPTY_FIELD));
+        else if (mark.getMark() < 0) errors.add(new ValidatorDto("Mark mark", AppMessages.INCORRECT_TYPE));
+        return errors;
+    }
+
+    public static List<ValidatorDto> validationJournal(JournalDto journalDto) {
+        return validationJournal(JournalMapper.INSTANCE.toEntity(journalDto));
+    }
+
+    public static List<ValidatorDto> validationJournal(Journal journal) {
+        List<ValidatorDto> errors = new ArrayList<>();
+        if (journal.getName() == null) errors.add(new ValidatorDto("Journal name", AppMessages.EMPTY_FIELD));
+        if (journal.getGroup() == null) errors.add(new ValidatorDto("Journal group", AppMessages.EMPTY_FIELD));
+        return errors;
+    }
+
+    public static List<ValidatorDto> validationSubject(SubjectDto subjectDto) {
+        return validationSubject(SubjectMapper.INSTANCE.toEntity(subjectDto));
+    }
+
+    public static List<ValidatorDto> validationSubject(Subject subject) {
+        List<ValidatorDto> errors = new ArrayList<>();
+        if (subject.getName() == null) errors.add(new ValidatorDto("Subject name", AppMessages.EMPTY_FIELD));
+        return errors;
     }
 
     public static void validationFacultyDtoForSave(FacultyDto facultyDto, List<ValidatorDto> errors, UniversityRepository universityRepository, GroupRepository groupRepository) {

@@ -93,9 +93,25 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public ResponseDto<List<Faculty>> saveAllWithUniversityId(List<Faculty> faculties, Integer universityId) {
+        /**
+         * V A L I D A T I O N
+         */
+        List<ValidatorDto> errors = new ArrayList<>();
+        for (Faculty faculty : faculties) {
+            errors.addAll(ValidationService.validationFaculty(faculty));
+        }
+        if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
-            boolean b = universityRepository.existsByIdAndIsActiveTrue(universityId);
-            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+            if (!universityRepository.existsByIdAndIsActiveTrue(universityId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
+        }
+
+        /**
+         * S A V I N G
+         */
+        try {
             for (Faculty faculty : faculties) {
                 faculty.setId(null);
                 faculty.setUniversity(new University(universityId));

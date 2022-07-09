@@ -88,9 +88,25 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public ResponseDto<List<Student>> saveAllWithGroupId(List<Student> students, Integer groupId) {
+        /**
+         * V A L I D A T I O N
+         */
+        List<ValidatorDto> errors = new ArrayList<>();
+        for (Student student : students) {
+            errors.addAll(ValidationService.validationStudent(student));
+        }
+        if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
-            boolean b = groupRepository.existsByIdAndIsActiveTrue(groupId);
-            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+            if (!groupRepository.existsByIdAndIsActiveTrue(groupId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
+        }
+
+        /**
+         * S A V I N G
+         */
+        try {
             for (Student student : students) {
                 student.setId(null);
                 student.setGroup(new Group(groupId));

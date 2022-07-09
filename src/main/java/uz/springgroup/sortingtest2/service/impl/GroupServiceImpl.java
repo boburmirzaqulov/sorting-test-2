@@ -117,9 +117,25 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public ResponseDto<List<Group>> saveAllWithFacultyId(List<Group> groups, Integer facultyId) {
+        /**
+         * V A L I D A T I O N
+         */
+        List<ValidatorDto> errors = new ArrayList<>();
+        for (Group group : groups) {
+            errors.addAll(ValidationService.validationGroup(group));
+        }
+        if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
-            boolean b = facultyRepository.existsByIdAndIsActiveTrue(facultyId);
-            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+            if (!facultyRepository.existsByIdAndIsActiveTrue(facultyId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
+        }
+
+        /**
+         * S A V I N G
+         */
+        try {
             for (Group group : groups) {
                 group.setId(null);
                 group.setFaculty(new Faculty(facultyId));
