@@ -91,10 +91,7 @@ public class StudentServiceImpl implements StudentService {
         /**
          * V A L I D A T I O N
          */
-        List<ValidatorDto> errors = new ArrayList<>();
-        for (Student student : students) {
-            errors.addAll(ValidationService.validationStudent(student));
-        }
+        List<ValidatorDto> errors = ValidationService.validationStudent(students);
         if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
             if (!groupRepository.existsByIdAndIsActiveTrue(groupId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);

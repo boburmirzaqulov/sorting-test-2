@@ -46,8 +46,7 @@ public class JournalServiceImpl implements JournalService {
         /**
          * V A L I D A T I O N
          */
-        List<ValidatorDto> errors = new ArrayList<>();
-        errors.addAll(ValidationService.validationJournal(journal));
+        List<ValidatorDto> errors = ValidationService.validationJournal(journal);
         if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
             if (!groupRepository.existsByIdAndIsActiveTrue(groupId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);

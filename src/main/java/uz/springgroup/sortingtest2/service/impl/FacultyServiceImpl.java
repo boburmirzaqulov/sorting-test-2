@@ -96,10 +96,7 @@ public class FacultyServiceImpl implements FacultyService {
         /**
          * V A L I D A T I O N
          */
-        List<ValidatorDto> errors = new ArrayList<>();
-        for (Faculty faculty : faculties) {
-            errors.addAll(ValidationService.validationFaculty(faculty));
-        }
+        List<ValidatorDto> errors = ValidationService.validationFaculty(faculties);
         if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
             if (!universityRepository.existsByIdAndIsActiveTrue(universityId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);

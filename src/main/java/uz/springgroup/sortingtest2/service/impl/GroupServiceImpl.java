@@ -120,10 +120,7 @@ public class GroupServiceImpl implements GroupService {
         /**
          * V A L I D A T I O N
          */
-        List<ValidatorDto> errors = new ArrayList<>();
-        for (Group group : groups) {
-            errors.addAll(ValidationService.validationGroup(group));
-        }
+        List<ValidatorDto> errors = ValidationService.validationGroup(groups);
         if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
             if (!facultyRepository.existsByIdAndIsActiveTrue(facultyId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);

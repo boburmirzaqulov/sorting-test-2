@@ -28,10 +28,7 @@ public class SubjectServiceImpl implements SubjectService {
         /**
          * V A L I D A T I O N
          */
-        List<ValidatorDto> errors = new ArrayList<>();
-        for (Subject subject : subjects) {
-            errors.addAll(ValidationService.validationSubject(subject));
-        }
+        List<ValidatorDto> errors = ValidationService.validationSubject(subjects);
         if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
             if (!journalRepository.existsByIdAndIsActiveTrue(journalId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);

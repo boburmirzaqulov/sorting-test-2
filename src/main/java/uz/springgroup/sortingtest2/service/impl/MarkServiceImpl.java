@@ -45,10 +45,7 @@ public class MarkServiceImpl implements MarkService {
         /**
          * V A L I D A T I O N
          */
-        List<ValidatorDto> errors = new ArrayList<>();
-        for (Mark mark : markList) {
-            errors.addAll(ValidationService.validationMark(mark));
-        }
+        List<ValidatorDto> errors = ValidationService.validationMark(markList);
         if (!errors.isEmpty()) return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, null, errors);
         try {
             if (!studentRepository.existsByIdAndIsActiveTrue(studentId)) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
