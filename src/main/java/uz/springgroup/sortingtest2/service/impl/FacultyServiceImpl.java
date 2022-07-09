@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
-import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
 import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.entity.Group;
@@ -90,6 +89,25 @@ public class FacultyServiceImpl implements FacultyService {
             faculty.setGroups(groups);
         }
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, facultyMapper.toDto(faculty));
+    }
+
+    @Override
+    public ResponseDto<List<Faculty>> saveAllWithUniversityId(List<Faculty> faculties, Integer universityId) {
+        for (Faculty faculty : faculties) {
+            faculty.setId(null);
+            faculty.setUniversity(new University(universityId));
+        }
+        faculties = facultyRepository.saveAll(faculties);
+        for (Faculty faculty : faculties) {
+            if (faculty.getGroups() != null){
+                ResponseDto<List<Group>> responseDto = groupService.saveAllWithFacultyId(faculty.getGroups(), faculty.getId());
+                if (responseDto.isSuccess()) {
+                    faculty.setGroups(responseDto.getData());
+                }
+            }
+            faculty.setUniversity(null);
+        }
+        return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, faculties);
     }
 
     @Override

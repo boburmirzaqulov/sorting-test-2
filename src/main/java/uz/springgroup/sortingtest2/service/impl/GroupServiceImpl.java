@@ -7,8 +7,7 @@ import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.GroupDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
-import uz.springgroup.sortingtest2.entity.Group;
-import uz.springgroup.sortingtest2.entity.GroupSt;
+import uz.springgroup.sortingtest2.entity.*;
 import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
@@ -111,6 +110,42 @@ public class GroupServiceImpl implements GroupService {
                 e.printStackTrace();
                 throw new DatabaseException(e.getMessage(), e);
             }
+        }
+    }
+
+    @Override
+    public ResponseDto<List<Group>> saveAllWithFacultyId(List<Group> groups, Integer facultyId) {
+        try {
+            for (Group group : groups) {
+                group.setId(null);
+                group.setFaculty(new Faculty(facultyId));
+            }
+            groupRepository.saveAll(groups);
+            for (Group group : groups) {
+                if (group.getStudents() != null) {
+                    ResponseDto<List<Student>> responseDto = studentService.saveAllWithGroupId(
+                            group.getStudents(),
+                            group.getId()
+                    );
+                    if (responseDto.isSuccess()) {
+                        group.setStudents(responseDto.getData());
+                    }
+                }
+                if (group.getJournal() != null) {
+                    ResponseDto<Journal> responseDto = journalService.saveWithGroupId(
+                            group.getJournal(),
+                            group.getId()
+                    );
+                    if (responseDto.isSuccess()){
+                        group.setJournal(responseDto.getData());
+                    }
+                }
+                group.setFaculty(null);
+            }
+            return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, groups);
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
         }
     }
 

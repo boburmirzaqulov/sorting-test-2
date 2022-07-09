@@ -38,15 +38,10 @@ public class Group {
     @OneToOne(mappedBy = "group")
     private Journal journal;
 
-    @ManyToMany
-    @JoinTable(
-            name = "group_subject",
-            joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "subject_id"))
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Subject> subjects;
-
     @Column(name = "is_active")
     private boolean isActive;
 
+    public Group(Integer id) {
+        this.id = id;
+    }
 }

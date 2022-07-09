@@ -23,6 +23,5 @@ public class GroupDto {
     private FacultyDto faculty;
     private List<StudentDto> students;
     private JournalDto journal;
-    private List<SubjectDto> subjects;
 
 }

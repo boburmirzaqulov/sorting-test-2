@@ -34,4 +34,8 @@ public class Faculty {
 
     @Column(name = "is_active")
     private boolean isActive;
+
+    public Faculty(Integer id) {
+        this.id = id;
+    }
 }

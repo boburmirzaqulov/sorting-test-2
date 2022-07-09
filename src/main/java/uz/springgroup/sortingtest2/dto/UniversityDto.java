@@ -22,4 +22,8 @@ public class UniversityDto {
     @NotNull(message = AppMessages.EMPTY_FIELD)
     private Date openYear;
     private List<FacultyDto> faculties;
+
+    public UniversityDto(Integer id) {
+        this.id = id;
+    }
 }

@@ -3,7 +3,6 @@ package uz.springgroup.sortingtest2.service;
 import org.springframework.util.MultiValueMap;
 import uz.springgroup.sortingtest2.dto.FacultyDto;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
-import uz.springgroup.sortingtest2.dto.UniversityDto;
 import uz.springgroup.sortingtest2.entity.Faculty;
 import uz.springgroup.sortingtest2.entity.University;
 
@@ -11,6 +10,8 @@ import java.util.List;
 
 public interface FacultyService {
     ResponseDto<FacultyDto> save(FacultyDto facultyDto);
+
+    ResponseDto<List<Faculty>> saveAllWithUniversityId(List<Faculty> faculties, Integer universityId);
 
     ResponseDto<?> getAll(MultiValueMap<String, String> params);
 

@@ -17,7 +17,6 @@ public interface GroupMapper {
     @Mapping(target = "faculty", source = "groupDto.faculty", qualifiedByName = "toFacultyToEntity")
     @Mapping(target = "students", source = "groupDto.students", qualifiedByName = "toStudentsToEntity")
     @Mapping(target = "journal", source = "groupDto.journal", qualifiedByName = "toJournalToEntity")
-    @Mapping(target = "subjects", source = "groupDto.subjects", qualifiedByName = "toSubjectsToEntity")
     Group toEntity(GroupDto groupDto);
 
     @Named("toFacultyToEntity")
@@ -45,21 +44,9 @@ public interface GroupMapper {
         return JournalMapper.INSTANCE.toEntity(journal);
     }
 
-    @Named("toSubjectsToEntity")
-    default List<Subject> toSubjectsToEntity(List<SubjectDto> subjects){
-        if (subjects == null) return null;
-        return subjects.stream()
-                .map(e -> {
-                    e.setGroups(null);
-                    return SubjectMapper.INSTANCE.toEntity(e);
-                })
-                .collect(Collectors.toList());
-    }
-
     @Mapping(target = "faculty", source = "group.faculty", qualifiedByName = "toFacultyToDto")
     @Mapping(target = "students", source = "group.students", qualifiedByName = "toStudentsToDto")
     @Mapping(target = "journal", source = "group.journal", qualifiedByName = "toJournalToDto")
-    @Mapping(target = "subjects", source = "group.subjects", qualifiedByName = "toSubjectsToDto")
     GroupDto toDto(Group group);
 
     @Named("toFacultyToDto")
@@ -85,16 +72,5 @@ public interface GroupMapper {
         if (journal == null) return null;
         journal.setGroup(null);
         return JournalMapper.INSTANCE.toDto(journal);
-    }
-
-    @Named("toSubjectsToDto")
-    default List<SubjectDto> toSubjectsToDto(List<Subject> subjects){
-        if (subjects == null) return null;
-        return subjects.stream()
-                .map(e -> {
-                    e.setGroups(null);
-                    return SubjectMapper.INSTANCE.toDto(e);
-                })
-                .collect(Collectors.toList());
     }
 }

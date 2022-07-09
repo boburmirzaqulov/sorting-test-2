@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import uz.springgroup.sortingtest2.dto.ResponseDto;
 import uz.springgroup.sortingtest2.dto.StudentInfo;
 import uz.springgroup.sortingtest2.dto.ValidatorDto;
+import uz.springgroup.sortingtest2.entity.Group;
+import uz.springgroup.sortingtest2.entity.Mark;
 import uz.springgroup.sortingtest2.entity.Student;
 import uz.springgroup.sortingtest2.entity.SubjectSt;
 import uz.springgroup.sortingtest2.exception.DatabaseException;
@@ -79,6 +81,35 @@ public class StudentServiceImpl implements StudentService {
                 e.printStackTrace();
                 throw new DatabaseException(e.getMessage(), e);
             }
+        }
+    }
+
+    @Override
+    public ResponseDto<List<Student>> saveAllWithGroupId(List<Student> students, Integer groupId) {
+        try {
+            for (Student student : students) {
+                student.setId(null);
+                student.setGroup(new Group(groupId));
+            }
+            students = studentRepository.saveAll(students);
+
+            for (Student student : students) {
+                if (student.getMarkList() != null) {
+                    ResponseDto<List<Mark>> responseDto = markService.saveAllWithStudentId(
+                            student.getMarkList(),
+                            student.getId()
+                    );
+                    if (responseDto.isSuccess()){
+                        student.setMarkList(responseDto.getData());
+                    }
+                }
+                student.setGroup(null);
+            }
+
+            return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, students);
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
         }
     }
 }

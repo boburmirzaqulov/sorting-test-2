@@ -40,4 +40,8 @@ public class Journal {
 
     @Column(name = "is_active")
     private boolean isActive;
+
+    public Journal(Integer id) {
+        this.id = id;
+    }
 }

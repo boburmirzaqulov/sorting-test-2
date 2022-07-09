@@ -25,4 +25,6 @@ public interface GroupService {
     void setActiveAll(boolean b, List<Integer> facultyIds);
 
     void setActiveOne(boolean b, Integer facultyId);
+
+    ResponseDto<List<Group>> saveAllWithFacultyId(List<Group> groups, Integer facultyId);
 }

@@ -42,60 +42,20 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public ResponseDto<UniversityDto> save(UniversityDto universityDto) {
-        // V A L I D A T I O N
-        List<ValidatorDto> errors = new ArrayList<>();
-        ValidationService.validationFaculty(universityDto, errors);
-        if (!errors.isEmpty())
-            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, universityDto, errors);
-
-        List<FacultyDto> facultyDtos = universityDto.getFaculties();
-        List<Integer> facultyIds = new ArrayList<>();
-        List<Faculty> facultiesDtos = new ArrayList<>();
-        List<Faculty> facultiesDtosWithId = new ArrayList<>();
-        if (facultyDtos != null && !facultyDtos.isEmpty()) {
-
-            for (FacultyDto facultyDto : facultyDtos) {
-                Faculty faculty = facultyMapper.toEntity(facultyDto);
-                facultiesDtos.add(faculty);
-                if (faculty.getId() != null) {
-                    facultyIds.add(facultyDto.getId());
-                    facultiesDtosWithId.add(faculty);
-                }
-            }
-
-            List<Faculty> facultiesDB = facultyRepository.findAllByIdInAndIsActiveTrue(facultyIds);
-
-            if (facultiesDB.size() != facultiesDtosWithId.size()) {
-                if (!facultiesDB.isEmpty()) {
-                    facultiesDtosWithId.removeAll(facultiesDB);
-                    if (!facultiesDtosWithId.isEmpty()){
-                        for (Faculty faculty : facultiesDtosWithId) {
-                            errors.add(new ValidatorDto(
-                                    String.format("Faculty with ID = %d", faculty.getId()),
-                                    AppMessages.NOT_FOUND));
-                        }
-                    }
-                }
-            }
-        }
-        if (!errors.isEmpty())
-            return new ResponseDto<>(false, AppCode.VALIDATOR_ERROR, AppMessages.VALIDATOR_MESSAGE, universityDto, errors);
-
-        // S A V E    U N I V E R S I T Y
         universityDto.setId(null);
         University university = universityMapper.toEntity(universityDto);
-        university.setActive(true);
-        try {
-            universityRepository.save(university);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new DatabaseException(e.getMessage(), e);
+        universityRepository.save(university);
+
+        if (university.getFaculties() != null){
+            ResponseDto<List<Faculty>> responseDto = facultyService.saveAllWithUniversityId(
+                    university.getFaculties(),
+                    university.getId()
+            );
+            if (responseDto.isSuccess()) {
+                university.setFaculties(responseDto.getData());
+            }
         }
 
-        // S A V E    F A C U L T I E S
-        List<Faculty> faculties = facultyService.updateWithUniversity(university, facultiesDtos);
-        faculties.sort(Comparator.comparingInt(Faculty::getId));
-        university.setFaculties(faculties);
         return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, universityMapper.toDto(university));
     }
 

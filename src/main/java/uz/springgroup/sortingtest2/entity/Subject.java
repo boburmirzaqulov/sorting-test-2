@@ -26,14 +26,6 @@ public class Subject {
 
     @ManyToMany
     @JoinTable(
-            name = "group_subject",
-            joinColumns = @JoinColumn(name = "subject_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id"))
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Group> groups;
-
-    @ManyToMany
-    @JoinTable(
             name = "journal_subject",
             joinColumns = @JoinColumn(name = "subject_id"),
             inverseJoinColumns = @JoinColumn(name = "journal_id"))

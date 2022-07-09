@@ -15,7 +15,6 @@ public class SubjectDto {
     private Integer id;
     @NotBlank(message = AppMessages.EMPTY_FIELD)
     private String name;
-    private List<GroupDto> groups;
     private List<JournalDto> journals;
     private List<MarkDto> markList;
 }
