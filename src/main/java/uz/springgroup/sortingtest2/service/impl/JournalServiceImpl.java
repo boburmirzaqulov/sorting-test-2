@@ -9,6 +9,7 @@ import uz.springgroup.sortingtest2.entity.Subject;
 import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
+import uz.springgroup.sortingtest2.repository.GroupRepository;
 import uz.springgroup.sortingtest2.repository.JournalRepository;
 import uz.springgroup.sortingtest2.service.JournalService;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class JournalServiceImpl implements JournalService {
     private final JournalRepository journalRepository;
     private final SubjectServiceImpl subjectService;
+    private final GroupRepository groupRepository;
 
     @Override
     public void setActiveAll(boolean b, List<Integer> groupIds) {
@@ -39,6 +41,8 @@ public class JournalServiceImpl implements JournalService {
     @Override
     public ResponseDto<Journal> saveWithGroupId(Journal journal, Integer groupId) {
         try {
+            boolean b = groupRepository.existsByIdAndIsActiveTrue(groupId);
+            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
             journal.setId(null);
             journal.setGroup(new Group(groupId));
             journalRepository.save(journal);
@@ -49,6 +53,8 @@ public class JournalServiceImpl implements JournalService {
                 );
                 if (responseDto.isSuccess()){
                     journal.setSubjects(responseDto.getData());
+                } else {
+                    return new ResponseDto<>(responseDto.isSuccess(), responseDto.getCode(), responseDto.getMessage(), null, responseDto.getErrors());
                 }
             }
             journal.setGroup(null);

@@ -53,6 +53,8 @@ public class UniversityServiceImpl implements UniversityService {
             );
             if (responseDto.isSuccess()) {
                 university.setFaculties(responseDto.getData());
+            } else {
+                return new ResponseDto<>(responseDto.isSuccess(), responseDto.getCode(), responseDto.getMessage(), null, responseDto.getErrors());
             }
         }
 

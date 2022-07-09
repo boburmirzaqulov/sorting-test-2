@@ -13,6 +13,7 @@ import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.mapper.StudentMapper;
+import uz.springgroup.sortingtest2.repository.GroupRepository;
 import uz.springgroup.sortingtest2.repository.StudentRepository;
 import uz.springgroup.sortingtest2.repository.SubjectRepository;
 import uz.springgroup.sortingtest2.service.StudentService;
@@ -25,6 +26,7 @@ import java.util.*;
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final SubjectRepository subjectRepository;
+    private final GroupRepository groupRepository;
     private final StudentMapper studentMapper;
     private final MarkServiceImpl markService;
 
@@ -87,6 +89,8 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public ResponseDto<List<Student>> saveAllWithGroupId(List<Student> students, Integer groupId) {
         try {
+            boolean b = groupRepository.existsByIdAndIsActiveTrue(groupId);
+            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
             for (Student student : students) {
                 student.setId(null);
                 student.setGroup(new Group(groupId));
@@ -101,6 +105,8 @@ public class StudentServiceImpl implements StudentService {
                     );
                     if (responseDto.isSuccess()){
                         student.setMarkList(responseDto.getData());
+                    } else {
+                        return new ResponseDto<>(responseDto.isSuccess(), responseDto.getCode(), responseDto.getMessage(), null, responseDto.getErrors());
                     }
                 }
                 student.setGroup(null);

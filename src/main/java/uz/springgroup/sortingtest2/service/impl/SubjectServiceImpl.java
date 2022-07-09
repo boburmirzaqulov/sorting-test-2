@@ -8,6 +8,7 @@ import uz.springgroup.sortingtest2.entity.Journal;
 import uz.springgroup.sortingtest2.entity.Subject;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
+import uz.springgroup.sortingtest2.repository.JournalRepository;
 import uz.springgroup.sortingtest2.repository.SubjectRepository;
 import uz.springgroup.sortingtest2.service.SubjectService;
 
@@ -18,10 +19,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SubjectServiceImpl implements SubjectService {
     private final SubjectRepository subjectRepository;
+    private final JournalRepository journalRepository;
 
     @Override
     public ResponseDto<List<Subject>> saveAllWithJournalId(List<Subject> subjects, Integer journalId) {
         try {
+            boolean b = journalRepository.existsByIdAndIsActiveTrue(journalId);
+            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
             List<Journal> journals = new ArrayList<>();
             journals.add(new Journal(journalId));
             for (Subject subject : subjects) {

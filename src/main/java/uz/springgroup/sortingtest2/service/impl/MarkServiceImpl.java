@@ -9,6 +9,7 @@ import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.repository.MarkRepository;
+import uz.springgroup.sortingtest2.repository.StudentRepository;
 import uz.springgroup.sortingtest2.service.MarkService;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MarkServiceImpl implements MarkService {
     private final MarkRepository markRepository;
+    private final StudentRepository studentRepository;
 
     @Override
     public void setActiveAll(boolean b, List<Integer> studentIds) {
@@ -38,6 +40,8 @@ public class MarkServiceImpl implements MarkService {
     @Override
     public ResponseDto<List<Mark>> saveAllWithStudentId(List<Mark> markList, Integer studentId) {
         try {
+            boolean b = studentRepository.existsByIdAndIsActiveTrue(studentId);
+            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
             markList = markList.stream()
                     .filter(e -> e.getSubject() != null)
                     .peek(e -> {

@@ -12,6 +12,7 @@ import uz.springgroup.sortingtest2.exception.DatabaseException;
 import uz.springgroup.sortingtest2.helper.AppCode;
 import uz.springgroup.sortingtest2.helper.AppMessages;
 import uz.springgroup.sortingtest2.mapper.GroupMapper;
+import uz.springgroup.sortingtest2.repository.FacultyRepository;
 import uz.springgroup.sortingtest2.repository.GroupRepository;
 import uz.springgroup.sortingtest2.service.GroupService;
 import uz.springgroup.sortingtest2.service.ValidationService;
@@ -26,6 +27,7 @@ public class GroupServiceImpl implements GroupService {
     private final GroupRepository groupRepository;
     private final StudentServiceImpl studentService;
     private final JournalServiceImpl journalService;
+    private final FacultyRepository facultyRepository;
     private final GroupMapper groupMapper;
 
 
@@ -116,6 +118,8 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public ResponseDto<List<Group>> saveAllWithFacultyId(List<Group> groups, Integer facultyId) {
         try {
+            boolean b = facultyRepository.existsByIdAndIsActiveTrue(facultyId);
+            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
             for (Group group : groups) {
                 group.setId(null);
                 group.setFaculty(new Faculty(facultyId));
@@ -129,6 +133,8 @@ public class GroupServiceImpl implements GroupService {
                     );
                     if (responseDto.isSuccess()) {
                         group.setStudents(responseDto.getData());
+                    } else {
+                        return new ResponseDto<>(responseDto.isSuccess(), responseDto.getCode(), responseDto.getMessage(), null, responseDto.getErrors());
                     }
                 }
                 if (group.getJournal() != null) {
@@ -138,6 +144,8 @@ public class GroupServiceImpl implements GroupService {
                     );
                     if (responseDto.isSuccess()){
                         group.setJournal(responseDto.getData());
+                    } else {
+                        return new ResponseDto<>(responseDto.isSuccess(), responseDto.getCode(), responseDto.getMessage(), null, responseDto.getErrors());
                     }
                 }
                 group.setFaculty(null);

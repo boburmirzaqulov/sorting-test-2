@@ -93,21 +93,30 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public ResponseDto<List<Faculty>> saveAllWithUniversityId(List<Faculty> faculties, Integer universityId) {
-        for (Faculty faculty : faculties) {
-            faculty.setId(null);
-            faculty.setUniversity(new University(universityId));
-        }
-        faculties = facultyRepository.saveAll(faculties);
-        for (Faculty faculty : faculties) {
-            if (faculty.getGroups() != null){
-                ResponseDto<List<Group>> responseDto = groupService.saveAllWithFacultyId(faculty.getGroups(), faculty.getId());
-                if (responseDto.isSuccess()) {
-                    faculty.setGroups(responseDto.getData());
-                }
+        try {
+            boolean b = universityRepository.existsByIdAndIsActiveTrue(universityId);
+            if (!b) return new ResponseDto<>(false, AppCode.NOT_FOUND, AppMessages.NOT_FOUND, null);
+            for (Faculty faculty : faculties) {
+                faculty.setId(null);
+                faculty.setUniversity(new University(universityId));
             }
-            faculty.setUniversity(null);
+            faculties = facultyRepository.saveAll(faculties);
+            for (Faculty faculty : faculties) {
+                if (faculty.getGroups() != null) {
+                    ResponseDto<List<Group>> responseDto = groupService.saveAllWithFacultyId(faculty.getGroups(), faculty.getId());
+                    if (responseDto.isSuccess()) {
+                        faculty.setGroups(responseDto.getData());
+                    } else {
+                        return new ResponseDto<>(responseDto.isSuccess(), responseDto.getCode(), responseDto.getMessage(), null, responseDto.getErrors());
+                    }
+                }
+                faculty.setUniversity(null);
+            }
+            return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, faculties);
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ResponseDto<>(false, AppCode.DATABASE_ERROR, AppMessages.DATABASE_ERROR, null);
         }
-        return new ResponseDto<>(true, AppCode.OK, AppMessages.OK, faculties);
     }
 
     @Override
