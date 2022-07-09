@@ -20,21 +20,9 @@ import java.util.stream.Collectors;
 public interface SubjectMapper {
     SubjectMapper INSTANCE = Mappers.getMapper(SubjectMapper.class);
 
-    @Mapping(target = "groups", source = "subjectDto.groups", qualifiedByName = "toGroupsToEntity")
     @Mapping(target = "journals", source = "subjectDto.journals", qualifiedByName = "toJournalsToEntity")
     @Mapping(target = "markList", source = "subjectDto.markList", qualifiedByName = "toMarkListToEntity")
     Subject toEntity(SubjectDto subjectDto);
-
-    @Named("toGroupsToEntity")
-    default List<Group> toGroupsToEntity(List<GroupDto> groups){
-        if (groups == null) return null;
-        return groups.stream()
-                .map(e -> {
-                    e.setSubjects(null);
-                    return GroupMapper.INSTANCE.toEntity(e);
-                })
-                .collect(Collectors.toList());
-    }
 
     @Named("toJournalsToEntity")
     default List<Journal> toJournalsToEntity(List<JournalDto> journals){
@@ -58,21 +46,9 @@ public interface SubjectMapper {
                 .collect(Collectors.toList());
     }
 
-    @Mapping(target = "groups", source = "subject.groups", qualifiedByName = "toGroupsToDto")
     @Mapping(target = "journals", source = "subject.journals", qualifiedByName = "toJournalsToDto")
     @Mapping(target = "markList", source = "subject.markList", qualifiedByName = "toMarkListToDto")
     SubjectDto toDto(Subject subject);
-
-    @Named("toGroupsToDto")
-    default List<GroupDto> toGroupsToDto(List<Group> groups){
-        if (groups == null) return null;
-        return groups.stream()
-                .map(e -> {
-                    e.setSubjects(null);
-                    return GroupMapper.INSTANCE.toDto(e);
-                })
-                .collect(Collectors.toList());
-    }
 
     @Named("toJournalsToDto")
     default List<JournalDto> toJournalsToDto(List<Journal> journals){
